@@ -2,6 +2,7 @@ package gui;
 
 import arreglos.*;
 import clases.*;
+import mediador.*;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 
@@ -26,7 +27,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
 
-public class DlgRegMatricula extends JDialog implements ItemListener, ActionListener, MouseListener {
+public class DlgRegMatricula extends JDialog implements ItemListener, ActionListener, MouseListener, Colega {
 	private JLabel lblNewLabel;
 	private JLabel lblNewLabel_1;
 	private JLabel lblNewLabel_2;
@@ -199,6 +200,35 @@ AlumnoDao aa = new AlumnoDao();
 CursoDao ac = new CursoDao();
 MatriculaDao am = new MatriculaDao();
 	
+
+    // ── Colega: comunicación con el Mediador ─────────────────────────
+    private Mediador mediador;
+
+    @Override
+    public void setMediador(Mediador mediador) {
+        this.mediador = mediador;
+    }
+
+    @Override
+    public void recibir(Evento evento, Object datos) {
+        switch (evento) {
+            case DATOS_ACTUALIZADOS:                       // alguien cambió la BD: refresca la tabla
+                listar();
+                break;
+            case OPERACION_EXITOSA:                        // mi solicitud terminó bien
+                JOptionPane.showMessageDialog(this, (String) datos);
+                deshabilitarTodo();
+                break;
+            case OPERACION_RECHAZADA:                      // una regla de negocio la rechazó
+            case ERROR_TECNICO:
+                JOptionPane.showMessageDialog(this, (String) datos, "", JOptionPane.ERROR_MESSAGE);
+                cboCodigoAlumno.requestFocus();
+                break;
+            default:
+                break;
+        }
+    }
+
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getSource() == cboCodigoCurso) {
 			itemStateChangedCboCodigoCurso(e);
@@ -258,37 +288,29 @@ MatriculaDao am = new MatriculaDao();
 		}
 	}
 protected void actionPerformedBtnAceptar(ActionEvent e) {
+    int codAlumno, codCurso;
     try {
-        int codAlumno = leerCodigoAlumno();
-        int codCurso  = leerCodigoCurso();
-
-        if (!btnAdicionar.isEnabled()) {
-            Alumno alumno = aa.buscar(codAlumno);
-            if (alumno.getEstado() == 0) {
-                // ← el 0 es un placeholder, MySQL asigna el número real
-                Matricula nuevo = new Matricula(0, codAlumno, codCurso,
-                                    Calendario.fechaActual(), Calendario.horaActual());
-                alumno.setEstado(1);
-                aa.actualizar(alumno);
-                int numGenerado = am.adicionar(nuevo);
-                listar();
-                mensaje("Matrícula registrada. Número asignado: " + numGenerado);
-                deshabilitarTodo();
-            } else {
-                error("El alumno ya se encuentra matriculado", cboCodigoAlumno);
-            }
-
-        } else if (!btnModificar.isEnabled()) {
-            // En modificar SÍ necesitas el número real
-            int numMatricula = leerNumeroMatricula();
-            am.actualizarCurso(numMatricula, codCurso);
-            listar();
-            mensaje("Matrícula modificada exitosamente");
-            deshabilitarTodo();
-        }
-
-    } catch (Exception ex) {
+        codAlumno = leerCodigoAlumno();
+        codCurso  = leerCodigoCurso();
+    } catch (RuntimeException ex) {
         error("Complete todos los campos antes de guardar", cboCodigoAlumno);
+        return;
+    }
+    if (!btnAdicionar.isEnabled()) {
+        // 0 = placeholder: MySQL asigna el número real
+        Matricula nueva = new Matricula(0, codAlumno, codCurso,
+                                        Calendario.fechaActual(), Calendario.horaActual());
+        mediador.notificar(this, Evento.MATRICULA_ADICIONAR, nueva);
+    } else if (!btnModificar.isEnabled()) {
+        int numMatricula;
+        try {
+            numMatricula = leerNumeroMatricula();
+        } catch (RuntimeException ex) {
+            error("Seleccione un número de matrícula", cboNumMatricula);
+            return;
+        }
+        mediador.notificar(this, Evento.MATRICULA_MODIFICAR,
+                           new Matricula(numMatricula, codAlumno, codCurso, null, null));
     }
 }
 	protected void actionPerformedBtnCancelar(ActionEvent e) {
@@ -307,25 +329,15 @@ protected void actionPerformedBtnAdicionar(ActionEvent e) {
 		cboNumMatricula.requestFocus();
 	}
 protected void actionPerformedBtnEliminar(ActionEvent e) {
+    int numMatricula;
     try {
-        int numMatricula = leerNumeroMatricula();
-        int codAlumno = leerCodigoAlumno();
-        Alumno alumno = aa.buscar(codAlumno);
-
-        if (alumno.getEstado() == 1) {
-            if (confirmar() == 0) {
-                am.eliminar(numMatricula); // ✅ elimina matrícula en BD
-                alumno.setEstado(0);
-                aa.actualizar(alumno);     // ✅ actualiza estado en BD
-                listar();
-                mensaje("Matrícula eliminada exitosamente");
-                deshabilitarTodo();
-            }
-        } else {
-            error("No es posible eliminar la matrícula, el alumno se encuentra retirado", cboNumMatricula);
-        }
-    } catch (Exception ex) {
+        numMatricula = leerNumeroMatricula();
+    } catch (RuntimeException ex) {
         error("Seleccione un número de matrícula", cboNumMatricula);
+        return;
+    }
+    if (confirmar() == 0) {
+        mediador.notificar(this, Evento.MATRICULA_ELIMINAR, numMatricula);
     }
 }
 	void habilitar(boolean numMatricula, boolean codigoAlumno, boolean alumno, boolean estadoAlumno, boolean codigoCurso,

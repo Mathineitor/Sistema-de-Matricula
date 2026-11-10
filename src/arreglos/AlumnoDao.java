@@ -47,17 +47,32 @@ public class AlumnoDao {
     }
   }
 
-  //RARO BUSCAR
   public Alumno buscar(int codAlumno) throws Exception {
+    try (Connection cn = Conexion.getConnection()) {
+      return buscar(cn, codAlumno);
+    }
+  }
+
+  /** Versión para usar dentro de una transacción (misma conexión). */
+  public Alumno buscar(Connection cn, int codAlumno) throws Exception {
     String sql = "SELECT * FROM alumnos WHERE cod_alumno = ?";
-    try (Connection cn = Conexion.getConnection(); 
-            PreparedStatement ps = cn.prepareStatement(sql)) {
+    try (PreparedStatement ps = cn.prepareStatement(sql)) {
       ps.setInt(1, codAlumno);
       try (ResultSet rs = ps.executeQuery()) {
         if (rs.next()) return mapear(rs);
       }
     }
     return null;
+  }
+
+  /** Cambia solo el estado (0 registrado, 1 matriculado, 2 retirado) dentro de una transacción. */
+  public void actualizarEstado(Connection cn, int codAlumno, int estado) throws Exception {
+    String sql = "UPDATE alumnos SET estado = ? WHERE cod_alumno = ?";
+    try (PreparedStatement ps = cn.prepareStatement(sql)) {
+      ps.setInt(1, estado);
+      ps.setInt(2, codAlumno);
+      ps.executeUpdate();
+    }
   }
 
   public ArrayList<Alumno> listar() throws Exception {

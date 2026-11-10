@@ -7,14 +7,17 @@ import java.util.ArrayList;
 
 public class RetiroDao {
 
-    /**
-     * Inserta retiro SIN num_retiro — MySQL lo genera automáticamente.
-     * Retorna el número generado.
-     */
+    /** Inserta el retiro y devuelve el num_retiro generado por MySQL. */
     public int adicionar(Retiro r) throws Exception {
+        try (Connection cn = Conexion.getConnection()) {
+            return adicionar(cn, r);
+        }
+    }
+
+    /** Versión para usar dentro de una transacción. */
+    public int adicionar(Connection cn, Retiro r) throws Exception {
         String sql = "INSERT INTO retiros (num_matricula, fecha, hora) VALUES (?,?,?)";
-        try (Connection cn = Conexion.getConnection();
-             PreparedStatement ps = cn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement ps = cn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, r.getNumMatricula());
             ps.setDate(2, java.sql.Date.valueOf(formatoFecha(r.getFecha())));
             ps.setTime(3, java.sql.Time.valueOf(formatoHora(r.getHora())));
@@ -27,18 +30,28 @@ public class RetiroDao {
     }
 
     public void eliminar(int numRetiro) throws Exception {
+        try (Connection cn = Conexion.getConnection()) {
+            eliminar(cn, numRetiro);
+        }
+    }
+
+    public void eliminar(Connection cn, int numRetiro) throws Exception {
         String sql = "DELETE FROM retiros WHERE num_retiro = ?";
-        try (Connection cn = Conexion.getConnection();
-             PreparedStatement ps = cn.prepareStatement(sql)) {
+        try (PreparedStatement ps = cn.prepareStatement(sql)) {
             ps.setInt(1, numRetiro);
             ps.executeUpdate();
         }
     }
 
     public Retiro buscar(int numRetiro) throws Exception {
+        try (Connection cn = Conexion.getConnection()) {
+            return buscar(cn, numRetiro);
+        }
+    }
+
+    public Retiro buscar(Connection cn, int numRetiro) throws Exception {
         String sql = "SELECT * FROM retiros WHERE num_retiro = ?";
-        try (Connection cn = Conexion.getConnection();
-             PreparedStatement ps = cn.prepareStatement(sql)) {
+        try (PreparedStatement ps = cn.prepareStatement(sql)) {
             ps.setInt(1, numRetiro);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return mapear(rs);

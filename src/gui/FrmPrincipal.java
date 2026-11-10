@@ -1,4 +1,6 @@
 package gui;
+import javax.swing.JDialog;
+import mediador.*;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
@@ -39,6 +41,7 @@ public class FrmPrincipal extends JFrame implements ActionListener {
 	private JMenuItem mntmAlumMatVigente;
 	private JMenuItem mntmAlumMatCurso;
         private PnlDashboard dashboard;
+        private final Mediador mediador = new MediadorMatricula();
 
 
 	/**
@@ -145,6 +148,8 @@ public class FrmPrincipal extends JFrame implements ActionListener {
 		setContentPane(contentPane);
 	        
 dashboard = new PnlDashboard();
+dashboard.setMediador(mediador);
+mediador.registrar(dashboard);   // el dashboard escucha al Mediador
 contentPane.add(dashboard, BorderLayout.CENTER);
         }
         
@@ -193,93 +198,34 @@ contentPane.add(dashboard, BorderLayout.CENTER);
 				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[] {"Si", "No"}, null);
 		if (valor == 0) System.exit(0);
 	}
-protected void actionPerformedMntmMantAlumno(ActionEvent e) {
-    DlgMantAlumno mantAlumno = new DlgMantAlumno();
-    mantAlumno.setModal(true);
-    mantAlumno.setLocationRelativeTo(this);
-    mantAlumno.setVisible(true);
-    dashboard.actualizar(); 
-    
-}
-	protected void actionPerformedMntmMantCurso(ActionEvent e) {
-		DlgMantCurso mantCurso = new DlgMantCurso();
-		mantCurso.setModal(true);
-		mantCurso.setLocationRelativeTo(this);
-		mantCurso.setVisible(true);
-                dashboard.actualizar(); 
+protected void actionPerformedMntmMantAlumno(ActionEvent e)     { abrirColega(new DlgMantAlumno()); }
+	protected void actionPerformedMntmMantCurso(ActionEvent e)      { abrirColega(new DlgMantCurso()); }
+	protected void actionPerformedMntmRegMatricula(ActionEvent e)   { abrirColega(new DlgRegMatricula()); }
+	protected void actionPerformedMntmRegRetiro(ActionEvent e)      { abrirColega(new DlgRegRetiro()); }
+	protected void actionPerformedMntmConsAlumno(ActionEvent e)     { abrir(new DlgConsultaAlumno()); }
+	protected void actionPerformedMntmConsCurso(ActionEvent e)      { abrir(new DlgConsultaCurso()); }
+	protected void actionPerformedMntmConsMatricula(ActionEvent e)  { abrir(new DlgConsultaMatricula()); }
+	protected void actionPerformedMntmConsRetiro(ActionEvent e)     { abrir(new DlgConsultaRetiro()); }
+	protected void actionPerformedMntmAlumMatPendiente(ActionEvent e) { abrir(new DlgReporteAMP()); }
+	protected void actionPerformedMntmAlumMatVigente(ActionEvent e)   { abrir(new DlgReporteAMV()); }
+	protected void actionPerformedMntmAlumMatCurso(ActionEvent e)     { abrir(new DlgReporteAMC()); }
+
+	/** Diálogo de solo lectura: se muestra y se libera. */
+	private void abrir(JDialog dlg) {
+		dlg.setModal(true);
+		dlg.setLocationRelativeTo(this);
+		dlg.setVisible(true);
+		dlg.dispose();
 	}
-	
-	protected void actionPerformedMntmRegMatricula(ActionEvent e) {
-		DlgRegMatricula regMatricula = new DlgRegMatricula();
-		regMatricula.setModal(true);
-		regMatricula.setLocationRelativeTo(this);
-		regMatricula.setVisible(true);
-                dashboard.actualizar(); 
+
+	/** Diálogo que participa en el Mediador: se registra al abrir y se da de baja al cerrar. */
+	private <T extends JDialog & Colega> void abrirColega(T dlg) {
+		dlg.setMediador(mediador);
+		mediador.registrar(dlg);
+		try {
+			abrir(dlg);
+		} finally {
+			mediador.eliminar(dlg);
+		}
 	}
-	
-	protected void actionPerformedMntmRegRetiro(ActionEvent e) {
-		DlgRegRetiro regRetiro = new DlgRegRetiro();
-		regRetiro.setModal(true);
-		regRetiro.setLocationRelativeTo(this);
-		regRetiro.setVisible(true);
-                dashboard.actualizar(); 
-	}
-	
-	protected void actionPerformedMntmConsAlumno(ActionEvent e) {
-		DlgConsultaAlumno consultaAlumno = new DlgConsultaAlumno();
-		consultaAlumno.setModal(true);
-		consultaAlumno.setLocationRelativeTo(this);
-		consultaAlumno.setVisible(true);
-                dashboard.actualizar(); 
-	}
-	
-	protected void actionPerformedMntmConsCurso(ActionEvent e) {
-		DlgConsultaCurso consultaCurso = new DlgConsultaCurso();
-		consultaCurso.setModal(true);
-		consultaCurso.setLocationRelativeTo(this);
-		consultaCurso.setVisible(true);
-                dashboard.actualizar(); 
-	}
-	
-	protected void actionPerformedMntmConsMatricula(ActionEvent e) {
-		DlgConsultaMatricula consultaMatricula = new DlgConsultaMatricula();
-		consultaMatricula.setModal(true);
-		consultaMatricula.setLocationRelativeTo(this);
-		consultaMatricula.setVisible(true); 
-                dashboard.actualizar(); 
-	}
-	
-	protected void actionPerformedMntmConsRetiro(ActionEvent e) {
-		DlgConsultaRetiro consultaRetiro = new DlgConsultaRetiro();
-		consultaRetiro.setModal(true);
-		consultaRetiro.setLocationRelativeTo(this);
-		consultaRetiro.setVisible(true);
-                dashboard.actualizar(); 
-	}
-	
-	protected void actionPerformedMntmAlumMatPendiente(ActionEvent e) {
-		DlgReporteAMP reporteAMP = new DlgReporteAMP();
-		reporteAMP.setModal(true);
-		reporteAMP.setLocationRelativeTo(this);
-		reporteAMP.setVisible(true);
-                dashboard.actualizar(); 
-	}
-	
-	protected void actionPerformedMntmAlumMatVigente(ActionEvent e) {
-		DlgReporteAMV reporteAMV = new DlgReporteAMV();
-		reporteAMV.setModal(true);
-		reporteAMV.setLocationRelativeTo(this);
-		reporteAMV.setVisible(true);
-                dashboard.actualizar(); 
-	}
-	
-	protected void actionPerformedMntmAlumMatCurso(ActionEvent e) {
-		DlgReporteAMC reporteAMC = new DlgReporteAMC();
-		reporteAMC.setModal(true);
-		reporteAMC.setLocationRelativeTo(this);
-		reporteAMC.setVisible(true);
-                dashboard.actualizar(); 
-        }
-        
-        
 }

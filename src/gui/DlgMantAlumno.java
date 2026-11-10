@@ -2,6 +2,7 @@ package gui;
 
 import arreglos.AlumnoDao;
 import clases.*;
+import mediador.*;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 
@@ -27,7 +28,7 @@ import javax.swing.DefaultComboBoxModel;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
 
-public class DlgMantAlumno extends JDialog implements ItemListener, ActionListener, MouseListener {
+public class DlgMantAlumno extends JDialog implements ItemListener, ActionListener, MouseListener, Colega {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -240,6 +241,35 @@ public class DlgMantAlumno extends JDialog implements ItemListener, ActionListen
 	AlumnoDao aa = new AlumnoDao();
 
 
+
+    // ── Colega: comunicación con el Mediador ─────────────────────────
+    private Mediador mediador;
+
+    @Override
+    public void setMediador(Mediador mediador) {
+        this.mediador = mediador;
+    }
+
+    @Override
+    public void recibir(Evento evento, Object datos) {
+        switch (evento) {
+            case DATOS_ACTUALIZADOS:                       // alguien cambió la BD: refresca la tabla
+                listar();
+                break;
+            case OPERACION_EXITOSA:                        // mi solicitud terminó bien
+                JOptionPane.showMessageDialog(this, (String) datos);
+                deshabilitarTodo();
+                break;
+            case OPERACION_RECHAZADA:                      // una regla de negocio la rechazó
+            case ERROR_TECNICO:
+                JOptionPane.showMessageDialog(this, (String) datos, "", JOptionPane.ERROR_MESSAGE);
+                cboCodigo.requestFocus();
+                break;
+            default:
+                break;
+        }
+    }
+
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getSource() == cboCodigo) {
 			itemStateChangedCboCodigo(e);
@@ -307,26 +337,11 @@ if (edad >= 60) {
                                 }
                                 int estado = leerEstado();
                                 if (estado != -1) {
+                                    Alumno datos = new Alumno(codAlumno, nombre, apellidos, dni, edad, celular, estado);
                                     if (!btnAdicionar.isEnabled()) {
-                                        if (!aa.existeDNI(dni)) {
-                                            Alumno nuevo = new Alumno(codAlumno, nombre, apellidos, dni, edad, celular, estado);
-                                            aa.adicionar(nuevo);
-                                            listar();
-                                            mensaje("Nuevo alumno añadido exitosamente");
-                                            deshabilitarTodo(); 
-                                        } else {
-                                            error("No puede ingresar un DNI ya existente", txtDNI);
-                                        }
+                                        mediador.notificar(this, Evento.ALUMNO_ADICIONAR, datos);
                                     } else if (!btnModificar.isEnabled()) {
-                                        Alumno buscado = aa.buscar(codAlumno);
-                                        buscado.setNombres(nombre);
-                                        buscado.setApellidos(apellidos);
-                                        buscado.setEdad(edad);
-                                        buscado.setCelular(celular);
-                                        aa.actualizar(buscado); // ✅ ahora actualiza en BD
-                                        listar();
-                                        mensaje("Alumno modificado exitosamente");
-                                        deshabilitarTodo();
+                                        mediador.notificar(this, Evento.ALUMNO_MODIFICAR, datos);
                                     }
                                 } else {
                                     error("Especifique el estado del alumno", cboEstado);
@@ -381,21 +396,15 @@ protected void actionPerformedBtnAdicionar(ActionEvent e) {
         
 	
 protected void actionPerformedBtnEliminar(ActionEvent e) {
+    int codAlumno;
     try {
-        int codAlumno = leerCodigo();
-        Alumno buscado = aa.buscar(codAlumno);
-        if (buscado.getEstado() == 0) {
-            if (confirmar() == 0) {
-                aa.eliminar(codAlumno); // ✅ ahora elimina en BD
-                listar();
-                mensaje("Alumno eliminado exitosamente");
-                deshabilitarTodo();
-            }
-        } else {
-            error("No puede eliminar a un alumno ya matriculado", cboCodigo);
-        }
+        codAlumno = leerCodigo();
     } catch (Exception error) {
         error("Seleccione un codigo de alumno", cboCodigo);
+        return;
+    }
+    if (confirmar() == 0) {
+        mediador.notificar(this, Evento.ALUMNO_ELIMINAR, codAlumno);
     }
 }
 	

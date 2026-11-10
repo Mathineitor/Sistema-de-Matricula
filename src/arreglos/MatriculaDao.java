@@ -7,15 +7,17 @@ import java.util.ArrayList;
 
 public class MatriculaDao {
 
-    /**
-     * Inserta matrícula SIN num_matricula — MySQL lo genera automáticamente.
-     * Retorna el número generado para mostrarlo en la GUI.
-     */
+    /** Inserta la matrícula y devuelve el num_matricula generado por MySQL. */
     public int adicionar(Matricula m) throws Exception {
-        String sql = "INSERT INTO matriculas (cod_alumno, cod_curso, fecha, hora, activo) "
-                   + "VALUES (?,?,?,?,1)";
-        try (Connection cn = Conexion.getConnection();
-             PreparedStatement ps = cn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection cn = Conexion.getConnection()) {
+            return adicionar(cn, m);
+        }
+    }
+
+    /** Versión para usar dentro de una transacción. */
+    public int adicionar(Connection cn, Matricula m) throws Exception {
+        String sql = "INSERT INTO matriculas (cod_alumno, cod_curso, fecha, hora, activo) VALUES (?,?,?,?,1)";
+        try (PreparedStatement ps = cn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, m.getCodigoAlumno());
             ps.setInt(2, m.getCodigoCurso());
             ps.setDate(3, java.sql.Date.valueOf(formatoFecha(m.getFecha())));
@@ -29,9 +31,14 @@ public class MatriculaDao {
     }
 
     public void eliminar(int numMatricula) throws Exception {
+        try (Connection cn = Conexion.getConnection()) {
+            eliminar(cn, numMatricula);
+        }
+    }
+
+    public void eliminar(Connection cn, int numMatricula) throws Exception {
         String sql = "DELETE FROM matriculas WHERE num_matricula = ?";
-        try (Connection cn = Conexion.getConnection();
-             PreparedStatement ps = cn.prepareStatement(sql)) {
+        try (PreparedStatement ps = cn.prepareStatement(sql)) {
             ps.setInt(1, numMatricula);
             ps.executeUpdate();
         }
@@ -48,9 +55,14 @@ public class MatriculaDao {
     }
 
     public Matricula buscar(int numMatricula) throws Exception {
+        try (Connection cn = Conexion.getConnection()) {
+            return buscar(cn, numMatricula);
+        }
+    }
+
+    public Matricula buscar(Connection cn, int numMatricula) throws Exception {
         String sql = "SELECT * FROM matriculas WHERE num_matricula = ?";
-        try (Connection cn = Conexion.getConnection();
-             PreparedStatement ps = cn.prepareStatement(sql)) {
+        try (PreparedStatement ps = cn.prepareStatement(sql)) {
             ps.setInt(1, numMatricula);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return mapear(rs);

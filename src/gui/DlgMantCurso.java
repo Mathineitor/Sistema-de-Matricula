@@ -2,6 +2,7 @@ package gui;
 import arreglos.CursoDao;
 import clases.Curso;
 import clases.*;
+import mediador.*;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 
@@ -28,7 +29,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
 
-public class DlgMantCurso extends JDialog implements ActionListener, ItemListener, MouseListener {
+public class DlgMantCurso extends JDialog implements ActionListener, ItemListener, MouseListener, Colega {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -199,6 +200,35 @@ CursoDao ac = new CursoDao();
 			actionPerformedBtnAdicionar(e);
 		}
 	}
+
+    // ── Colega: comunicación con el Mediador ─────────────────────────
+    private Mediador mediador;
+
+    @Override
+    public void setMediador(Mediador mediador) {
+        this.mediador = mediador;
+    }
+
+    @Override
+    public void recibir(Evento evento, Object datos) {
+        switch (evento) {
+            case DATOS_ACTUALIZADOS:                       // alguien cambió la BD: refresca la tabla
+                listar();
+                break;
+            case OPERACION_EXITOSA:                        // mi solicitud terminó bien
+                JOptionPane.showMessageDialog(this, (String) datos);
+                deshabilitarTodo();
+                break;
+            case OPERACION_RECHAZADA:                      // una regla de negocio la rechazó
+            case ERROR_TECNICO:
+                JOptionPane.showMessageDialog(this, (String) datos, "", JOptionPane.ERROR_MESSAGE);
+                cboCodigo.requestFocus();
+                break;
+            default:
+                break;
+        }
+    }
+
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getSource() == cboCodigo) {
 			itemStateChangedCboCodigo(e);
@@ -228,22 +258,11 @@ protected void actionPerformedBtnAceptar(ActionEvent e) {
                     int creditos = leerCreditos();
                     try {
                         int horas = leerHoras();
+                        Curso datos = new Curso(codCurso, asignatura, ciclo, creditos, horas);
                         if (!btnAdicionar.isEnabled()) {
-                            Curso nuevo = new Curso(codCurso, asignatura, ciclo, creditos, horas);
-                            ac.adicionar(nuevo);
-                            listar();
-                            mensaje("Nuevo curso añadido exitosamente");
-                            deshabilitarTodo();
+                            mediador.notificar(this, Evento.CURSO_ADICIONAR, datos);
                         } else if (!btnModificar.isEnabled()) {
-                            Curso buscado = ac.buscar(codCurso);
-                            buscado.setAsignatura(asignatura);
-                            buscado.setCiclo(ciclo);
-                            buscado.setCreditos(creditos);
-                            buscado.setHoras(horas);
-                            ac.actualizar(buscado); // ✅ ahora actualiza en BD
-                            listar();
-                            mensaje("Curso modificado exitosamente");
-                            deshabilitarTodo();
+                            mediador.notificar(this, Evento.CURSO_MODIFICAR, datos);
                         }
                     } catch (Exception error) {
                         error("Ingrese un número de horas válido", txtHoras);
@@ -283,16 +302,15 @@ protected void actionPerformedBtnAdicionar(ActionEvent e) {
 		cboCodigo.requestFocus();
 	}
 protected void actionPerformedBtnEliminar(ActionEvent e) {
+    int codCurso;
     try {
-        int codCurso = leerCodigo();
-        if (confirmar() == 0) {
-            ac.eliminar(codCurso); // ✅ ahora elimina en BD
-            listar();
-            mensaje("Curso eliminado exitosamente");
-            deshabilitarTodo();
-        }
+        codCurso = leerCodigo();
     } catch (Exception error) {
         error("Seleccione un código de curso", cboCodigo);
+        return;
+    }
+    if (confirmar() == 0) {
+        mediador.notificar(this, Evento.CURSO_ELIMINAR, codCurso);
     }
 }
 	void habilitar(boolean codigo,boolean asignatura, boolean ciclo, boolean creditos, boolean horas, 

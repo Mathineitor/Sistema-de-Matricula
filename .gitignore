@@ -1,6 +1,16 @@
-build/
-dist/
-nbproject/private
+# Compilación y binarios de Java y NetBeans
+/build/
+/out/
+/dist/
 *.class
-*.jar
-src/config.properties
+
+# Carpetas de configuración de NetBeans y VS Code (locales)
+/nbproject/private/
+.vscode/
+.idea/
+*.iml
+
+# Archivos de respaldo o temporales del sistema operativo
+*~
+.DS_Store
+Thumbs.db

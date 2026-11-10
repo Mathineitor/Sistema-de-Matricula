@@ -2,6 +2,7 @@ package gui;
 
 import arreglos.*;
 import clases.*;
+import mediador.*;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 
@@ -26,7 +27,7 @@ import javax.swing.DefaultComboBoxModel;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
 
-public class DlgRegRetiro extends JDialog implements ItemListener, ActionListener, MouseListener {
+public class DlgRegRetiro extends JDialog implements ItemListener, ActionListener, MouseListener, Colega {
 	private JLabel lblNewLabel;
 	private JLabel lblNewLabel_1;
 	private JLabel lblNewLabel_2;
@@ -211,6 +212,35 @@ CursoDao ac = new CursoDao();
 MatriculaDao am = new MatriculaDao();
 RetiroDao ar = new RetiroDao();
 	
+
+    // ── Colega: comunicación con el Mediador ─────────────────────────
+    private Mediador mediador;
+
+    @Override
+    public void setMediador(Mediador mediador) {
+        this.mediador = mediador;
+    }
+
+    @Override
+    public void recibir(Evento evento, Object datos) {
+        switch (evento) {
+            case DATOS_ACTUALIZADOS:                       // alguien cambió la BD: refresca la tabla
+                listar();
+                break;
+            case OPERACION_EXITOSA:                        // mi solicitud terminó bien
+                JOptionPane.showMessageDialog(this, (String) datos);
+                deshabilitarTodo();
+                break;
+            case OPERACION_RECHAZADA:                      // una regla de negocio la rechazó
+            case ERROR_TECNICO:
+                JOptionPane.showMessageDialog(this, (String) datos, "", JOptionPane.ERROR_MESSAGE);
+                cboNumMatricula.requestFocus();
+                break;
+            default:
+                break;
+        }
+    }
+
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getSource() == cboCodigoCurso) {
 			itemStateChangedCboCodigoCurso(e);
@@ -273,37 +303,27 @@ RetiroDao ar = new RetiroDao();
 		}
 	}
 protected void actionPerformedBtnAceptar(ActionEvent e) {
-    try {
-        int numRetiro = leerNumeroRetiro();
-        int numMatricula = leerNumeroMatricula();
-        int codCurso = leerCodigoCurso();
-
-        if (!btnAdicionar.isEnabled()) {
-            Alumno alumno = aa.buscar(am.buscar(numMatricula).getCodigoAlumno());
-            if (alumno.getEstado() == 1) {
-                Retiro nuevo = new Retiro(numRetiro, numMatricula,
-                                          Calendario.fechaActual(), Calendario.horaActual());
-                alumno.setEstado(2);
-                aa.actualizar(alumno);   // ✅ actualiza estado en BD
-                
-                int numGenerado = ar.adicionar(nuevo);
-                listar();
-                mensaje("Nuevo retiro añadido. Número: " + numGenerado);
-
-                
-                deshabilitarTodo();
-            } else {
-                error("El alumno ya se encuentra retirado", cboNumMatricula);
-            }
-        } else if (!btnModificar.isEnabled()) {
-            Retiro buscado = ar.buscar(numRetiro);
-            am.actualizarCurso(buscado.getNumMatricula(), codCurso); // ✅ actualiza curso en BD
-            listar();
-            mensaje("Retiro modificado exitosamente");
-            deshabilitarTodo();
+    if (!btnAdicionar.isEnabled()) {
+        int numMatricula;
+        try {
+            numMatricula = leerNumeroMatricula();
+        } catch (RuntimeException ex) {
+            error("Seleccione un número de matrícula", cboNumMatricula);
+            return;
         }
-    } catch (Exception ex) {
-        error("Seleccione un número de retiro", cboNumRetiro);
+        // 0 = placeholder: MySQL asigna el número real
+        Retiro nuevo = new Retiro(0, numMatricula, Calendario.fechaActual(), Calendario.horaActual());
+        mediador.notificar(this, Evento.RETIRO_ADICIONAR, nuevo);
+    } else if (!btnModificar.isEnabled()) {
+        int numRetiro, codCurso;
+        try {
+            numRetiro = leerNumeroRetiro();
+            codCurso  = leerCodigoCurso();
+        } catch (RuntimeException ex) {
+            error("Seleccione un número de retiro", cboNumRetiro);
+            return;
+        }
+        mediador.notificar(this, Evento.RETIRO_MODIFICAR, new CambioCurso(numRetiro, codCurso));
     }
 }
 	protected void actionPerformedBtnCancelar(ActionEvent e) {
@@ -322,20 +342,15 @@ protected void actionPerformedBtnAdicionar(ActionEvent e) {
 		cboNumRetiro.requestFocus();
 	}
 protected void actionPerformedBtnEliminar(ActionEvent e) {
+    int numRetiro;
     try {
-        int numRetiro = leerNumeroRetiro();
-        Retiro buscado = ar.buscar(numRetiro);
-        if (confirmar() == 0) {
-            ar.eliminar(numRetiro); // ✅ elimina retiro en BD
-            Alumno alumno = aa.buscar(am.buscar(buscado.getNumMatricula()).getCodigoAlumno());
-            alumno.setEstado(1);
-            aa.actualizar(alumno); // ✅ actualiza estado en BD
-            listar();
-            mensaje("Retiro eliminado exitosamente");
-            deshabilitarTodo();
-        }
-    } catch (Exception ex) {
+        numRetiro = leerNumeroRetiro();
+    } catch (RuntimeException ex) {
         error("Seleccione un número de retiro", cboNumRetiro);
+        return;
+    }
+    if (confirmar() == 0) {
+        mediador.notificar(this, Evento.RETIRO_ELIMINAR, numRetiro);
     }
 }
 	void habilitar(boolean numRetiro, boolean numMatricula, boolean alumno, boolean codigoCurso, boolean curso,

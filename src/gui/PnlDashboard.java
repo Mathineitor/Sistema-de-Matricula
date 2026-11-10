@@ -5,6 +5,9 @@
 package gui;
 
 import arreglos.DashboardDao;
+import mediador.Colega;
+import mediador.Evento;
+import mediador.Mediador;
 import java.awt.*;
 import java.util.Map;
 import javax.swing.*;
@@ -12,7 +15,7 @@ import javax.swing.*;
  *
  * @author Thiago
  */
-public class PnlDashboard extends JPanel {
+public class PnlDashboard extends JPanel implements Colega {
 private DashboardDao dao = new DashboardDao();
 
     // ── datos cargados desde la BD ────────────────────────────────────────
@@ -33,6 +36,21 @@ private DashboardDao dao = new DashboardDao();
             setBackground(GRIS_F);
         cargarDatos();
     }
+    private Mediador mediador;
+
+    @Override
+    public void setMediador(Mediador mediador) {
+        this.mediador = mediador;
+    }
+
+    /** El dashboard solo ESCUCHA: nunca emite eventos, únicamente se refresca cuando el Mediador avisa. */
+    @Override
+    public void recibir(Evento evento, Object datos) {
+        if (evento == Evento.DATOS_ACTUALIZADOS) {
+            actualizar();
+        }
+    }
+
     public void actualizar() {
         cargarDatos();
         repaint();
