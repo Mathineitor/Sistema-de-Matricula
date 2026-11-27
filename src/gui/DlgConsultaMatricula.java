@@ -2,6 +2,8 @@ package gui;
 
 import arreglos.*;
 import clases.*;
+import servicios.ConsultasFacade;
+import servicios.ConsultasFacade.FichaMatricula;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 
@@ -73,9 +75,8 @@ public class DlgConsultaMatricula extends JDialog implements ActionListener {
 		listarCboCodigo();
 	}
 	//declaracion global
-AlumnoDao aa = new AlumnoDao();
-CursoDao ac = new CursoDao();
-MatriculaDao am = new MatriculaDao();
+MatriculaDao am = new MatriculaDao();               // solo para llenar el combo
+ConsultasFacade consultas = new ConsultasFacade();  // FACADE: ficha completa en una llamada
 	
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == btnConsultar) {
@@ -99,16 +100,13 @@ MatriculaDao am = new MatriculaDao();
 	//metodo Listar
 void listar() {
     try {
-        Matricula m = am.buscar(leerCodigo());
-        Alumno x = aa.buscar(m.getCodigoAlumno());
-        Curso c = ac.buscar(m.getCodigoCurso());
+        FichaMatricula f = consultas.fichaMatricula(leerCodigo());
+        Matricula m = f.getMatricula();
+        Alumno x = f.getAlumno();
+        Curso c = f.getCurso();
 
         imprimir("CODIGO        : " + m.getNumeroMatricula());
-        switch (x.getEstado()) {
-            case 0: imprimir("ESTADO        : REGISTRADO"); break;
-            case 1: imprimir("ESTADO        : MATRICULADO"); break;
-            default: imprimir("ESTADO        : RETIRADO");
-        }
+        imprimir("ESTADO        : " + f.getEstadoAlumno());
         imprimir("");
         imprimir("COD. ALUMNO   : " + x.getCodAlumno());
         imprimir("NOMBRES       : " + x.getNombres());

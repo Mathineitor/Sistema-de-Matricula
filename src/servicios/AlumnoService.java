@@ -2,7 +2,7 @@ package servicios;
 
 import arreglos.AlumnoDao;
 import clases.Alumno;
-import clases.EstadoAlumno;
+import estados.EstadoDelAlumno;
 import mediador.ReglaNegocioException;
 
 public class AlumnoService {
@@ -28,8 +28,7 @@ public class AlumnoService {
     public void eliminar(int codAlumno) throws Exception {
         Alumno a = alumnos.buscar(codAlumno);
         if (a == null) throw new ReglaNegocioException("El alumno no existe");
-        if (a.getEstado() != EstadoAlumno.REGISTRADO.getValor())
-            throw new ReglaNegocioException("No puede eliminar a un alumno ya matriculado");
+        EstadoDelAlumno.desde(a.getEstado()).validarEliminacion();   // State decide
         alumnos.eliminar(codAlumno);
     }
 }

@@ -2,6 +2,7 @@ package gui;
 
 import arreglos.*;
 import clases.*;
+import servicios.ConsultasFacade;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 
@@ -60,7 +61,7 @@ public class DlgReporteAMP extends JDialog implements ActionListener {
 	}
 	
 	//DECLARACION GLOBAL
-AlumnoDao aa = new AlumnoDao();	
+ConsultasFacade consultas = new ConsultasFacade();   // FACADE
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == btnListar) {
             actionPerformedBtnListar(e);
@@ -69,17 +70,16 @@ AlumnoDao aa = new AlumnoDao();
 protected void actionPerformedBtnListar(ActionEvent e) {
     txtResultado.setText("");
     try {
-        for (Alumno a : aa.listar()) {
-            if (a.getEstado() == 0) { // pendiente (registrado)
-                imprimir(" CODIGO    : " + a.getCodAlumno());
-                imprimir(" NOMBRES   : " + a.getNombres());
-                imprimir(" APELLIDOS : " + a.getApellidos());
-                imprimir(" DNI       : " + a.getDni());
-                imprimir(" EDAD      : " + a.getEdad());
-                imprimir(" CELULAR   : " + a.getCelular());
-                imprimir(" ESTADO    : " + nombreEstado(a.getEstado()));
-                imprimir("-------------------------------------------------------------------------");
-            }
+        // pendiente (registrado)
+        for (Alumno a : consultas.alumnosPorEstado(EstadoAlumno.REGISTRADO)) {
+            imprimir(" CODIGO    : " + a.getCodAlumno());
+            imprimir(" NOMBRES   : " + a.getNombres());
+            imprimir(" APELLIDOS : " + a.getApellidos());
+            imprimir(" DNI       : " + a.getDni());
+            imprimir(" EDAD      : " + a.getEdad());
+            imprimir(" CELULAR   : " + a.getCelular());
+            imprimir(" ESTADO    : " + EstadoAlumno.desde(a.getEstado()));
+            imprimir("-------------------------------------------------------------------------");
         }
     } catch (Exception ex) {
         mensaje("Error generando reporte");
@@ -88,15 +88,6 @@ protected void actionPerformedBtnListar(ActionEvent e) {
 void mensaje(String s) {
     JOptionPane.showMessageDialog(this, s);
 }
-	
-	String nombreEstado(int i) {
-		switch (i) {
-		case 0: return "REGISTRADO";
-		case 1: return "MATRICULADO";
-		case 2: return "RETIRADO";
-		default: return null;
-		}
-	}
 	
 	void imprimir(String s) {
 		txtResultado.append(s + "\n");

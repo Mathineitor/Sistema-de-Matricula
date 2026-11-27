@@ -312,63 +312,60 @@ public class DlgMantAlumno extends JDialog implements ItemListener, ActionListen
 	}
         
 protected void actionPerformedBtnAceptar(ActionEvent e) {
+    int codAlumno;
     try {
-        
-        int codAlumno = leerCodigo();
-        String nombre = leerNombres();
-        if (nombre.length() != 0) {
-            String apellidos = leerApellidos();
-            if (apellidos.length() != 0) {
-                String dni = leerDNI();
-                try {
-                    if (Integer.parseInt(dni) > 0 && Integer.parseInt(dni) < 100000000) {
-                        try {
-                            int edad = leerEdad();
-                             edad = Integer.parseInt(txtEdad.getText());
-if (edad >= 60) {
-    JOptionPane.showMessageDialog(this, "La edad debe ser menor a 60");
-    return; // detiene el guardado
-}
-                            try {
-                                String celular = leerCelular();
-                                if(!celular.matches("9\\d{8}")){
-                                error("El celular debe tener 9 digitos y empezar con 9" , txtCelular);
-                                return;
-                                }
-                                int estado = leerEstado();
-                                if (estado != -1) {
-                                    Alumno datos = new Alumno(codAlumno, nombre, apellidos, dni, edad, celular, estado);
-                                    if (!btnAdicionar.isEnabled()) {
-                                        mediador.notificar(this, Evento.ALUMNO_ADICIONAR, datos);
-                                    } else if (!btnModificar.isEnabled()) {
-                                        mediador.notificar(this, Evento.ALUMNO_MODIFICAR, datos);
-                                    }
-                                } else {
-                                    error("Especifique el estado del alumno", cboEstado);
-                                }
-                            } catch (Exception error) {
-                                error("Ingrese un numero de celular valido", txtCelular);
-                            }
-                        } catch (Exception error) {
-                            error("Ingrese una edad valida", txtEdad);
-                        }
-                    } else {
-                        error("Ingrese un DNI valido", txtDNI);
-                    }   
-                } catch (Exception error) {
-                    error("Ingrese un DNI valido", txtDNI);
-                }
-            } else {
-                error("Ingrese los apellidos del alumno", txtApellidos);
-            }
-        } else {
-            error("Ingrese el nombre del alumno", txtNombres);
-        }
+        codAlumno = leerCodigo();
     } catch (Exception error) {
         error("Seleccione un codigo de alumno", cboCodigo);
+        return;
     }
-    
-    
+    int edad;
+    try {
+        edad = leerEdad();
+    } catch (Exception error) {
+        error("Ingrese una edad valida", txtEdad);
+        return;
+    }
+    int estado = leerEstado();
+    if (estado == -1) {
+        error("Especifique el estado del alumno", cboEstado);
+        return;
+    }
+
+    // BUILDER: crea el Alumno y valida todas las reglas en un solo lugar
+    Alumno datos;
+    try {
+        datos = new AlumnoBuilder()
+                .codigo(codAlumno)
+                .nombres(leerNombres())
+                .apellidos(leerApellidos())
+                .dni(leerDNI())
+                .edad(edad)
+                .celular(leerCelular())
+                .estado(EstadoAlumno.desde(estado))
+                .build();
+    } catch (IllegalArgumentException ex) {
+        mostrarErrorDeValidacion(ex.getMessage());
+        return;
+    }
+
+    if (!btnAdicionar.isEnabled()) {
+        mediador.notificar(this, Evento.ALUMNO_ADICIONAR, datos);
+    } else if (!btnModificar.isEnabled()) {
+        mediador.notificar(this, Evento.ALUMNO_MODIFICAR, datos);
+    }
+}
+
+/** Muestra el mensaje del Builder y deja el foco en el campo que corresponde. */
+void mostrarErrorDeValidacion(String msg) {
+    String m = msg.toLowerCase();
+    if (m.contains("nombre"))        error(msg, txtNombres);
+    else if (m.contains("apellido")) error(msg, txtApellidos);
+    else if (m.contains("dni"))      error(msg, txtDNI);
+    else if (m.contains("edad"))     error(msg, txtEdad);
+    else if (m.contains("celular"))  error(msg, txtCelular);
+    else if (m.contains("estado"))   error(msg, cboEstado);
+    else                             error(msg, cboCodigo);
 }
 	protected void actionPerformedBtnCancelar(ActionEvent e) {
 		deshabilitarTodo();

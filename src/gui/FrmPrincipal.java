@@ -41,7 +41,7 @@ public class FrmPrincipal extends JFrame implements ActionListener {
 	private JMenuItem mntmAlumMatVigente;
 	private JMenuItem mntmAlumMatCurso;
         private PnlDashboard dashboard;
-        private final Mediador mediador = new MediadorMatricula();
+        private final Mediador mediador = new MediadorAuditado(new MediadorMatricula());   // Decorator + Singleton (Bitacora)
 
 
 	/**

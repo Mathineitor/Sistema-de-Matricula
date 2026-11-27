@@ -6,7 +6,7 @@ import arreglos.MatriculaDao;
 import arreglos.RetiroDao;
 import clases.Alumno;
 import clases.Conexion;
-import clases.EstadoAlumno;
+import estados.EstadoDelAlumno;
 import clases.Matricula;
 import clases.Retiro;
 import mediador.ReglaNegocioException;
@@ -24,13 +24,10 @@ public class RetiroService {
             if (m == null)
                 throw new ReglaNegocioException("La matrícula no existe");
             Alumno a = alumnos.buscar(cn, m.getCodigoAlumno());
-            if (a.getEstado() == EstadoAlumno.RETIRADO.getValor())
-                throw new ReglaNegocioException("El alumno ya se encuentra retirado");
-            if (a.getEstado() != EstadoAlumno.MATRICULADO.getValor())
-                throw new ReglaNegocioException("El alumno no se encuentra matriculado");
+            EstadoDelAlumno siguiente = EstadoDelAlumno.desde(a.getEstado()).retirar();
 
             int numero = retiros.adicionar(cn, r);
-            alumnos.actualizarEstado(cn, a.getCodAlumno(), EstadoAlumno.RETIRADO.getValor());
+            alumnos.actualizarEstado(cn, a.getCodAlumno(), siguiente.getEstado().getValor());
             return numero;
         });
     }
@@ -42,9 +39,11 @@ public class RetiroService {
             if (r == null)
                 throw new ReglaNegocioException("El retiro no existe");
             Matricula m = matriculas.buscar(cn, r.getNumMatricula());
+            Alumno a = alumnos.buscar(cn, m.getCodigoAlumno());
+            EstadoDelAlumno siguiente = EstadoDelAlumno.desde(a.getEstado()).anularRetiro();
 
             retiros.eliminar(cn, numRetiro);
-            alumnos.actualizarEstado(cn, m.getCodigoAlumno(), EstadoAlumno.MATRICULADO.getValor());
+            alumnos.actualizarEstado(cn, a.getCodAlumno(), siguiente.getEstado().getValor());
             return null;
         });
     }
