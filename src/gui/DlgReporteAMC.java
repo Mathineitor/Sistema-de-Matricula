@@ -56,6 +56,7 @@ public class DlgReporteAMC extends JDialog implements ActionListener {
 			txtResultado.setFont(new Font("Monospaced", Font.BOLD, 13));
 			scrollPane.setViewportView(txtResultado);
 		}
+			Tema.aplicar(this, "Alumnos matriculados por curso", "Listado de alumnos agrupado por curso");
 	}
 	
 	//DECLARACION GLOBAL

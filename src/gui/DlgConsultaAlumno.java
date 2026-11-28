@@ -1,170 +1,102 @@
 package gui;
 
-import arreglos.*;
 import clases.*;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import arreglos.AlumnoDao;
-import arreglos.CursoDao;
-import arreglos.MatriculaDao;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import java.awt.event.ActionListener;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.Font;
-import javax.swing.JComboBox;
+import java.awt.event.ActionListener;
+import java.util.Comparator;
+import java.util.List;
+import javax.swing.*;
+import servicios.ConsultasFacade;
+import servicios.ConsultasFacade.FichaMatricula;
 
+/** Consulta de un alumno: se busca escribiendo su nombre. */
 public class DlgConsultaAlumno extends JDialog implements ActionListener {
-	private JButton btnConsultar;
-	private JTextArea txtResultado;
-	private JComboBox cboCodigo;
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		try {
-            DlgConsultaAlumno dialog = new DlgConsultaAlumno();
-            dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-            dialog.setVisible(true);
-        } catch (Exception e) {
-            e.printStackTrace();
+
+    private final ConsultasFacade consultas = new ConsultasFacade();
+    private ComboBuscador<Alumno> cboAlumno;
+    private JButton btnConsultar;
+    private JTextArea txtResultado;
+
+    public DlgConsultaAlumno() {
+        JPanel cuerpo = new JPanel(null);
+        cuerpo.setPreferredSize(new Dimension(780, 540));
+
+        Tema.Tarjeta buscar = new Tema.Tarjeta("Buscar alumno");
+        buscar.setBounds(20, 20, 740, 104);
+        cuerpo.add(buscar);
+        JLabel pista = Tema.etiqueta("Escribe parte del nombre o apellido");
+        pista.setBounds(500, 14, 220, 18);
+        buscar.add(pista);
+        cboAlumno = new ComboBuscador<Alumno>(a -> a.getNombres() + " " + a.getApellidos() + "  \u00b7  " + a.getCodAlumno());
+        cboAlumno.setAlSeleccionar(a -> listar());
+        cboAlumno.setBounds(24, 48, 500, 34);
+        buscar.add(cboAlumno);
+        btnConsultar = new JButton("Consultar");
+        btnConsultar.addActionListener(this);
+        btnConsultar.setBounds(548, 48, 168, 34);
+        buscar.add(btnConsultar);
+
+        Tema.Tarjeta ficha = new Tema.Tarjeta("Ficha del alumno");
+        ficha.setBounds(20, 140, 740, 380);
+        cuerpo.add(ficha);
+        txtResultado = new JTextArea();
+        JScrollPane sp = new JScrollPane(txtResultado);
+        sp.setBounds(12, 42, 716, 326);
+        ficha.add(sp);
+
+        Tema.montar(this, "Consulta de alumno", "Datos personales y matr\u00edcula vigente", cuerpo);
+        cargarAlumnos();
+    }
+
+    @Override public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == btnConsultar) {
+            if (cboAlumno.getSeleccionado() == null) {
+                JOptionPane.showMessageDialog(this, "Seleccione un alumno de la lista", "Atenci\u00f3n", JOptionPane.WARNING_MESSAGE);
+                cboAlumno.requestFocus();
+            } else listar();
         }
     }
-	/**
-	 * Create the dialog.
-	 */
-	public DlgConsultaAlumno() {
-		setBounds(100, 100, 500, 323);
-		getContentPane().setLayout(null);
-		
-		JLabel lblNewLabel = new JLabel("Codigo de alumno:");
-		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
-		lblNewLabel.setBounds(10, 19, 122, 14);
-		getContentPane().add(lblNewLabel);
-		
-		btnConsultar = new JButton("Consultar");
-		btnConsultar.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		btnConsultar.addActionListener(this);
-		btnConsultar.setBounds(387, 16, 89, 23);
-		getContentPane().add(btnConsultar);
-		
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(10, 49, 466, 227);
-		getContentPane().add(scrollPane);
-		
-		txtResultado = new JTextArea();
-		txtResultado.setFont(new Font("Monospaced", Font.BOLD, 13));
-		scrollPane.setViewportView(txtResultado);
-		
-		cboCodigo = new JComboBox();
-		cboCodigo.setBounds(142, 16, 94, 23);
-		getContentPane().add(cboCodigo);
-		
-		listarCboCodigo();
-	}
-	
-	//declaracion global
-	AlumnoDao aa = new AlumnoDao();
-CursoDao ac = new CursoDao();
-MatriculaDao am = new MatriculaDao();
-	
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == btnConsultar) {
-			actionPerformedBtnConsultar(e);
-		}
-	}
-	protected void actionPerformedBtnConsultar(ActionEvent e) {
-		try {
-			txtResultado.setText("");
-			listar();
-			cboCodigo.requestFocus();
-		}
-		catch (Exception error) {
-			mensaje("Seleccione un codigo de alumno");
-		}
-	}
-	//imprimir	
-	void imprimir(){
-		imprimir("");
-	}
-	
-	
-	//metodo Listar
 
- void listar() {
+    private void cargarAlumnos() {
         try {
-            Alumno x = aa.buscar(leerCodigo());
-            imprimir("CODIGO               : " + x.getCodAlumno());
-            imprimir("NOMBRES              : " + x.getNombres());
-            imprimir("APELLIDOS            : " + x.getApellidos());
-            imprimir("DNI                  : " + x.getDni());
-            imprimir("EDAD                 : " + x.getEdad());
-            imprimir("CELULAR              : " + x.getCelular());
-            imprimir("ESTADO               : " + nombreEstado(x.getEstado()));
-            imprimir();
+            List<Alumno> alumnos = consultas.alumnos();
+            alumnos.sort(Comparator.comparing(a -> Texto.clave(a.getNombres() + " " + a.getApellidos())));
+            cboAlumno.setItems(alumnos);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error cargando alumnos");
+        }
+    }
 
-            if (x.getEstado() != 0) {
-                Matricula m = am.buscarPorAlumno(x.getCodAlumno());
-                if (m != null) {
-                    Curso c = ac.buscar(m.getCodigoCurso());
-                    imprimir("ASIGNATURA           : " + c.getAsignatura());
-                    imprimir("CICLO                : " + nombreCiclo(c.getCiclo()));
-                    imprimir("CANTIDAD DE CREDITOS : " + c.getCreditos());
-                    imprimir("HORAS                : " + c.getHoras());
+    private void listar() {
+        Alumno x = cboAlumno.getSeleccionado();
+        if (x == null) return;
+        txtResultado.setText("");
+        try {
+            linea("C\u00d3DIGO", x.getCodAlumno());
+            linea("NOMBRES", x.getNombres());
+            linea("APELLIDOS", x.getApellidos());
+            linea("DNI", x.getDni());
+            linea("EDAD", x.getEdad());
+            linea("CELULAR", x.getCelular());
+            linea("ESTADO", Texto.titulo(EstadoAlumno.desde(x.getEstado()).name()));
+            if (x.getEstado() != EstadoAlumno.REGISTRADO.getValor()) {
+                FichaMatricula f = consultas.matriculaVigenteDe(x.getCodAlumno());
+                if (f != null) {
+                    txtResultado.append("\n");
+                    linea("N.\u00ba DE MATR\u00cdCULA", f.getMatricula().getNumeroMatricula());
+                    linea("ASIGNATURA", f.getCurso().getAsignatura());
+                    linea("CICLO", Ciclo.nombre(f.getCurso().getCiclo()));
+                    linea("CR\u00c9DITOS", f.getCurso().getCreditos());
+                    linea("HORAS", f.getCurso().getHoras());
                 }
             }
         } catch (Exception ex) {
-            mensaje("Error consultando alumno");
-        }
-    }
-	
- void listarCboCodigo() {
-        cboCodigo.removeAllItems();
-        try {
-            for (Alumno a : aa.listar()) {
-                cboCodigo.addItem(a.getCodAlumno());
-            }
-        } catch (Exception ex) {
-            mensaje("Error cargando alumnos");
-        }
-        cboCodigo.setSelectedIndex(-1);
-    }
-
-    String nombreEstado(int i) {
-        switch (i) {
-            case 0: return "REGISTRADO";
-            case 1: return "MATRICULADO";
-            case 2: return "RETIRADO";
-            default: return null;
+            JOptionPane.showMessageDialog(this, "Error consultando alumno");
         }
     }
 
-    String nombreCiclo(int i) {
-        switch (i) {
-            case 0: return "PRIMERO";
-            case 1: return "SEGUNDO";
-            case 2: return "TERCERO";
-            case 3: return "CUARTO";
-            case 4: return "QUINTO";
-            case 5: return "SEXTO";
-            default: return null;
-        }
+    private void linea(String etiqueta, Object valor) {
+        txtResultado.append(String.format("%-20s: %s%n", etiqueta, valor));
     }
-	void imprimir(String s){
-		txtResultado.append(s + "\n"); 
-	}
-	void mensaje(String s) {
-		JOptionPane.showMessageDialog(this, s);
-	}
-	//otros metodos
-	public int leerCodigo() {
-		return Integer.parseInt(cboCodigo.getSelectedItem().toString());
-	}
 }

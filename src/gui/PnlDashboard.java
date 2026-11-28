@@ -18,17 +18,17 @@ import javax.swing.*;
 public class PnlDashboard extends JPanel implements Colega {
 private DashboardDao dao = new DashboardDao();
 
-    // ── datos cargados desde la BD ────────────────────────────────────────
+    // \u2500\u2500 datos cargados desde la BD \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
     private int totalAlumnos, matriculados, retirados, pendientes, cursos, matriculas;
     private Map<String, Integer> porCurso;
 
-    // ── colores del sistema ───────────────────────────────────────────────
-    private static final Color AZUL    = new Color(52, 152, 219);
-    private static final Color VERDE   = new Color(46, 204, 113);
-    private static final Color ROJO    = new Color(231, 76, 60);
-    private static final Color NARANJA = new Color(230, 126, 34);
-    private static final Color GRIS_F  = new Color(245, 246, 250);
-    private static final Color GRIS_T  = new Color(100, 110, 130);
+    // \u2500\u2500 colores del sistema \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+    private static final Color AZUL    = Tema.PRIMARIO;
+    private static final Color VERDE   = Tema.EXITO;
+    private static final Color ROJO    = Tema.PELIGRO;
+    private static final Color NARANJA = Tema.AVISO;
+    private static final Color GRIS_F  = Tema.FONDO;
+    private static final Color GRIS_T  = Tema.TEXTO_SUAVE;
     /**
      * Creates new form PnlDashboard
      */
@@ -43,7 +43,7 @@ private DashboardDao dao = new DashboardDao();
         this.mediador = mediador;
     }
 
-    /** El dashboard solo ESCUCHA: nunca emite eventos, únicamente se refresca cuando el Mediador avisa. */
+    /** El dashboard solo ESCUCHA: nunca emite eventos, \u00fanicamente se refresca cuando el Mediador avisa. */
     @Override
     public void recibir(Evento evento, Object datos) {
         if (evento == Evento.DATOS_ACTUALIZADOS) {
@@ -104,20 +104,20 @@ private DashboardDao dao = new DashboardDao();
 
         int w = getWidth();
 
-        // ── Título ────────────────────────────────────────────────────────
+        // \u2500\u2500 T\u00edtulo \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
         g2.setColor(new Color(50, 60, 80));
-        g2.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        g2.setFont(Tema.fuente(Font.BOLD, 22));
         g2.drawString("Panel de Control", 30, 45);
 
         g2.setColor(GRIS_T);
-        g2.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        g2.drawString("Resumen general del sistema de matrícula", 30, 65);
+        g2.setFont(Tema.fuente(Font.PLAIN, 13));
+        g2.drawString("Resumen general del sistema de matr\u00edcula", 30, 65);
 
-        // ── Línea separadora ──────────────────────────────────────────────
+        // \u2500\u2500 L\u00ednea separadora \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
         g2.setColor(new Color(220, 225, 235));
         g2.fillRect(30, 75, w - 60, 2);
 
-        // ── Tarjetas de estadísticas ──────────────────────────────────────
+        // \u2500\u2500 Tarjetas de estad\u00edsticas \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
         int cardY   = 95;
         int cardH   = 100;
         int padding = 15;
@@ -125,24 +125,24 @@ private DashboardDao dao = new DashboardDao();
         int cardW = (w - 60 - padding * (numCards - 1)) / numCards;
 
         dibujarTarjeta(g2, 30,                             cardY, cardW, cardH,
-            "TOTAL ALUMNOS", String.valueOf(totalAlumnos), AZUL, "👤");
+            "TOTAL ALUMNOS", String.valueOf(totalAlumnos), AZUL, "");
         dibujarTarjeta(g2, 30 + (cardW + padding),         cardY, cardW, cardH,
-            "MATRICULADOS",  String.valueOf(matriculados),  VERDE, "✓");
+            "MATRICULADOS",  String.valueOf(matriculados),  VERDE, "\u2713");
         dibujarTarjeta(g2, 30 + (cardW + padding) * 2,     cardY, cardW, cardH,
-            "RETIRADOS",     String.valueOf(retirados),     ROJO, "✗");
+            "RETIRADOS",     String.valueOf(retirados),     ROJO, "\u2717");
         dibujarTarjeta(g2, 30 + (cardW + padding) * 3,     cardY, cardW, cardH,
-            "SIN MATRÍCULA", String.valueOf(pendientes),    NARANJA, "⏳");
+            "SIN MATR\u00cdCULA", String.valueOf(pendientes),    NARANJA, "\u23f3");
 
-        // ── Segunda fila de tarjetas ──────────────────────────────────────
+        // \u2500\u2500 Segunda fila de tarjetas \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
         int card2Y = cardY + cardH + padding;
         int card2W = (w - 60 - padding) / 2;
 
         dibujarTarjeta(g2, 30,              card2Y, card2W, cardH,
-            "CURSOS REGISTRADOS", String.valueOf(cursos),    AZUL, "📚");
+            "CURSOS REGISTRADOS", String.valueOf(cursos),    AZUL, "");
         dibujarTarjeta(g2, 30 + card2W + padding, card2Y, card2W, cardH,
-            "MATRÍCULAS ACTIVAS", String.valueOf(matriculas), VERDE, "📋");
+            "MATR\u00cdCULAS ACTIVAS", String.valueOf(matriculas), VERDE, "");
 
-        // ── Gráfico de barras ─────────────────────────────────────────────
+        // \u2500\u2500 Gr\u00e1fico de barras \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
         int graficoY = card2Y + cardH + padding + 10;
         int graficoH = getHeight() - graficoY - 30;
         if (graficoH > 100 && porCurso != null && !porCurso.isEmpty()) {
@@ -150,7 +150,7 @@ private DashboardDao dao = new DashboardDao();
         }
     }
 
-    /** Dibuja una tarjeta con sombra, color lateral, icono, título y número */
+    /** Dibuja una tarjeta con sombra, color lateral, icono, t\u00edtulo y n\u00famero */
     private void dibujarTarjeta(Graphics2D g2, int x, int y, int w, int h,
                                  String titulo, String valor, Color color, String icono) {
         // Sombra
@@ -167,42 +167,43 @@ private DashboardDao dao = new DashboardDao();
         g2.fillRect(x + 3, y, 3, h);  // cuadra la parte derecha del borde
 
         // Icono
-        g2.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 22));
-        g2.setColor(color);
-        g2.drawString(icono, x + 18, y + 38);
+        g2.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 36));
+		g2.fillOval(x + 18, y + 12, 30, 30);
+		g2.setColor(color);
+		g2.fillOval(x + 27, y + 21, 12, 12);
 
-        // Número grande
-        g2.setFont(new Font("Segoe UI", Font.BOLD, 32));
+        // N\u00famero grande
+        g2.setFont(Tema.fuente(Font.BOLD, 32));
         g2.setColor(new Color(40, 50, 70));
         g2.drawString(valor, x + 18, y + 72);
 
-        // Título pequeño
-        g2.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        // T\u00edtulo peque\u00f1o
+        g2.setFont(Tema.fuente(Font.PLAIN, 11));
         g2.setColor(GRIS_T);
         g2.drawString(titulo, x + 18, y + 90);
     }
 
-    /** Dibuja el gráfico de barras con etiquetas y valores */
+    /** Dibuja el gr\u00e1fico de barras con etiquetas y valores */
     private void dibujarGrafico(Graphics2D g2, int x, int y, int w, int h) {
-        // Fondo del gráfico
+        // Fondo del gr\u00e1fico
         g2.setColor(Color.WHITE);
         g2.setColor(new Color(0, 0, 0, 15));
         g2.fillRoundRect(x + 3, y + 3, w, h, 15, 15);
         g2.setColor(Color.WHITE);
         g2.fillRoundRect(x, y, w, h, 15, 15);
 
-        // Título del gráfico
-        g2.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        // T\u00edtulo del gr\u00e1fico
+        g2.setFont(Tema.fuente(Font.BOLD, 14));
         g2.setColor(new Color(40, 50, 70));
         g2.drawString("Alumnos matriculados por curso", x + 20, y + 28);
 
-        // Área de barras
+        // \u00c1rea de barras
         int areaX = x + 20;
         int areaY = y + 45;
         int areaW = w - 40;
         int areaH = h - 70;
 
-        // Líneas guía horizontales
+        // L\u00edneas gu\u00eda horizontales
         g2.setColor(new Color(235, 238, 245));
         int numLineas = 4;
         for (int i = 0; i <= numLineas; i++) {
@@ -212,7 +213,7 @@ private DashboardDao dao = new DashboardDao();
 
         if (porCurso == null || porCurso.isEmpty()) return;
 
-        // Valor máximo para escalar
+        // Valor m\u00e1ximo para escalar
         int maxVal = porCurso.values().stream().mapToInt(Integer::intValue).max().orElse(1);
         if (maxVal == 0) maxVal = 1;
 
@@ -243,7 +244,7 @@ private DashboardDao dao = new DashboardDao();
             g2.fillRoundRect(barX, barY, barW, barH, 8, 8);
 
             // Valor encima de la barra
-            g2.setFont(new Font("Segoe UI", Font.BOLD, 12));
+            g2.setFont(Tema.fuente(Font.BOLD, 12));
             g2.setColor(new Color(40, 50, 70));
             String valStr = String.valueOf(valor);
             FontMetrics fm = g2.getFontMetrics();
@@ -251,9 +252,9 @@ private DashboardDao dao = new DashboardDao();
             g2.drawString(valStr, valX, barY - 5);
 
             // Etiqueta debajo
-            g2.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+            g2.setFont(Tema.fuente(Font.PLAIN, 10));
             g2.setColor(GRIS_T);
-            // Divide el nombre en dos líneas si es largo
+            // Divide el nombre en dos l\u00edneas si es largo
             if (nombre.length() > 12) {
                 String[] partes = nombre.split(" ", 2);
                 int p1X = barX + (barW - fm.stringWidth(partes[0])) / 2;

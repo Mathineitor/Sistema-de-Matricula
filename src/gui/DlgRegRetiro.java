@@ -1,504 +1,304 @@
 package gui;
 
-import arreglos.*;
 import clases.*;
-import mediador.*;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumnModel;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import java.awt.Font;
-import javax.swing.JComboBox;
-import java.awt.event.ItemListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ActionListener;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import javax.swing.DefaultComboBoxModel;
-import java.awt.event.MouseListener;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import mediador.*;
+import servicios.ConsultasFacade;
+import servicios.ConsultasFacade.FichaMatricula;
+import servicios.ConsultasFacade.FichaRetiro;
 
-public class DlgRegRetiro extends JDialog implements ItemListener, ActionListener, MouseListener, Colega {
-	private JLabel lblNewLabel;
-	private JLabel lblNewLabel_1;
-	private JLabel lblNewLabel_2;
-	private JLabel lblNewLabel_6;
-	private JLabel lblNewLabel_5;
-	private JComboBox<Integer> cboNumRetiro;
-	private JComboBox<Integer> cboNumMatricula;
-	private JTextField txtAlumno;
-	private JTextField txtCurso;
-	private JButton btnAceptar;
-	private JButton btnCancelar;
-	private JButton btnAdicionar;
-	private JButton btnModificar;
-	private JButton btnEliminar;
-	private JScrollPane scrollPane;
-	private JLabel lblNewLabel_3;
-	private JLabel lblNewLabel_4;
-	private JComboBox<Integer> cboCodigoCurso;
-	private JTable tblRetiro;
-	private DefaultTableModel modelo;
-	private JTextField txtActivoMatricula;
+/** Registro de retiros. La matricula se busca escribiendo el nombre del alumno. */
+public class DlgRegRetiro extends JDialog implements ActionListener, MouseListener, Colega {
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		try {
-			DlgRegRetiro dialog = new DlgRegRetiro();
-			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			dialog.setVisible(true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Create the dialog.
-	 */
-	public DlgRegRetiro() {
-		setTitle("REGISTRO DE RETIROS");
-		setBounds(100, 100, 850, 514);
-		getContentPane().setLayout(null);
-		
-		lblNewLabel = new JLabel("");
-		lblNewLabel.setBounds(492, 22, 193, 168);
-		getContentPane().add(lblNewLabel);
-		
-		lblNewLabel_1 = new JLabel("N\u00FAmero de Retiro:");
-		lblNewLabel_1.setFont(new Font("Tahoma", Font.BOLD, 12));
-		lblNewLabel_1.setBounds(10, 22, 136, 15);
-		getContentPane().add(lblNewLabel_1);
-		
-		lblNewLabel_2 = new JLabel("N\u00FAmero de matr\u00EDcula:");
-		lblNewLabel_2.setFont(new Font("Tahoma", Font.BOLD, 12));
-		lblNewLabel_2.setBounds(10, 57, 136, 15);
-		getContentPane().add(lblNewLabel_2);
-		
-		lblNewLabel_3 = new JLabel("Alumno:");
-		lblNewLabel_3.setFont(new Font("Tahoma", Font.BOLD, 12));
-		lblNewLabel_3.setBounds(10, 92, 63, 15);
-		getContentPane().add(lblNewLabel_3);
-		
-		lblNewLabel_4 = new JLabel("C\u00F3digo del curso:");
-		lblNewLabel_4.setFont(new Font("Tahoma", Font.BOLD, 12));
-		lblNewLabel_4.setBounds(10, 127, 136, 15);
-		getContentPane().add(lblNewLabel_4);
-		
-		lblNewLabel_5 = new JLabel("Curso:");
-		lblNewLabel_5.setFont(new Font("Tahoma", Font.BOLD, 12));
-		lblNewLabel_5.setBounds(10, 162, 63, 15);
-		getContentPane().add(lblNewLabel_5);
-		
-		lblNewLabel_6 = new JLabel("Activo:");
-		lblNewLabel_6.setFont(new Font("Tahoma", Font.BOLD, 12));
-		lblNewLabel_6.setBounds(10, 193, 63, 15);
-		getContentPane().add(lblNewLabel_6);
-		
-		cboNumRetiro = new JComboBox<Integer>();
-		cboNumRetiro.addItemListener(this);
-		cboNumRetiro.setSelectedIndex(-1);
-		cboNumRetiro.setEnabled(false);
-		cboNumRetiro.setBounds(156, 22, 152, 21);
-		getContentPane().add(cboNumRetiro);
-		
-		cboNumMatricula = new JComboBox<Integer>();
-		cboNumMatricula.addItemListener(this);
-		cboNumMatricula.setSelectedIndex(-1);
-		cboNumMatricula.setEnabled(false);
-		cboNumMatricula.setBounds(156, 55, 152, 21);
-		getContentPane().add(cboNumMatricula);
-		
-		txtAlumno = new JTextField();
-		txtAlumno.setText("");
-		txtAlumno.setEditable(false);
-		txtAlumno.setColumns(10);
-		txtAlumno.setBounds(83, 91, 225, 19);
-		getContentPane().add(txtAlumno);
-		
-		cboCodigoCurso = new JComboBox<Integer>();
-		cboCodigoCurso.addItemListener(this);
-		cboCodigoCurso.setSelectedIndex(-1);
-		cboCodigoCurso.setEnabled(false);
-		cboCodigoCurso.setBounds(156, 125, 152, 21);
-		getContentPane().add(cboCodigoCurso);
-		
-		txtCurso = new JTextField();
-		txtCurso.setText("");
-		txtCurso.setEditable(false);
-		txtCurso.setColumns(10);
-		txtCurso.setBounds(83, 161, 225, 19);
-		getContentPane().add(txtCurso);
-		
-		txtActivoMatricula = new JTextField();
-		txtActivoMatricula.setText("");
-		txtActivoMatricula.setEditable(false);
-		txtActivoMatricula.setColumns(10);
-		txtActivoMatricula.setBounds(83, 192, 69, 19);
-		getContentPane().add(txtActivoMatricula);
-		
-		btnAceptar = new JButton("Aceptar");
-		btnAceptar.addActionListener(this);
-		btnAceptar.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		btnAceptar.setEnabled(false);
-		btnAceptar.setBounds(10, 227, 142, 27);
-		getContentPane().add(btnAceptar);
-		
-		btnCancelar = new JButton("Cancelar");
-		btnCancelar.addActionListener(this);
-		btnCancelar.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		btnCancelar.setEnabled(false);
-		btnCancelar.setBounds(166, 227, 142, 27);
-		getContentPane().add(btnCancelar);
-		
-		btnAdicionar = new JButton("Adicionar");
-		btnAdicionar.addActionListener(this);
-		btnAdicionar.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		btnAdicionar.setEnabled(true);
-		btnAdicionar.setBounds(722, 22, 104, 33);
-		getContentPane().add(btnAdicionar);
-		
-		btnModificar = new JButton("Modificar");
-		btnModificar.addActionListener(this);
-		btnModificar.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		btnModificar.setEnabled(true);
-		btnModificar.setBounds(722, 82, 104, 33);
-		getContentPane().add(btnModificar);
-		
-		btnEliminar = new JButton("Eliminar");
-		btnEliminar.addActionListener(this);
-		btnEliminar.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		btnEliminar.setEnabled(true);
-		btnEliminar.setBounds(722, 144, 104, 33);
-		getContentPane().add(btnEliminar);
-		
-		scrollPane = new JScrollPane();
-		scrollPane.setBounds(10, 264, 816, 203);
-		getContentPane().add(scrollPane);
-		
-		tblRetiro = new JTable();
-		tblRetiro.addMouseListener(this);
-		tblRetiro.setFillsViewportHeight(true);
-		scrollPane.setViewportView(tblRetiro);
-		modelo = new DefaultTableModel();
-		modelo.addColumn("N RETIRO");
-		modelo.addColumn("N MAT.");
-		modelo.addColumn("NOMBRES");
-		modelo.addColumn("APELLIDOS");
-		modelo.addColumn("ASIGNATURA");
-		modelo.addColumn("FECHA");
-		modelo.addColumn("HORA");
-		tblRetiro.setModel(modelo);
-		
-		ajustarColumnas();
-		listar();
-		deshabilitarTodo();
-	}
-	
-	//DECLARACI�N GLOBAL
-
-AlumnoDao aa = new AlumnoDao();
-CursoDao ac = new CursoDao();
-MatriculaDao am = new MatriculaDao();
-RetiroDao ar = new RetiroDao();
-	
-
-    // ── Colega: comunicación con el Mediador ─────────────────────────
+    private final ConsultasFacade consultas = new ConsultasFacade();
     private Mediador mediador;
+    private List<FichaMatricula> fichas = new ArrayList<>();
+    private List<FichaRetiro> retiros = new ArrayList<>();
 
-    @Override
-    public void setMediador(Mediador mediador) {
-        this.mediador = mediador;
+    private JComboBox<Integer> cboNumRetiro;
+    private ComboBuscador<FichaMatricula> cboMatricula;
+    private ComboBuscador<Curso> cboCurso;
+    private JTextField txtNumMatricula, txtVigente, txtCodCurso, txtEstado;
+    private JButton btnAceptar, btnCancelar, btnAdicionar, btnModificar, btnEliminar;
+    private JTable tblRetiro;
+    private DefaultTableModel modelo;
+
+    public DlgRegRetiro() {
+        setModal(true);
+        JPanel cuerpo = new JPanel(null);
+        cuerpo.setPreferredSize(new Dimension(960, 580));
+
+        Tema.Tarjeta datos = new Tema.Tarjeta("Datos del retiro");
+        datos.setBounds(20, 20, 700, 276);
+        cuerpo.add(datos);
+
+        JLabel pista = Tema.etiqueta("Escribe el nombre del alumno");
+        pista.setBounds(480, 14, 200, 18);
+        datos.add(pista);
+
+        colocar(datos, Tema.etiqueta("N.\u00ba de retiro"), 24, 46, 190, 16);
+        cboNumRetiro = new JComboBox<Integer>();
+        cboNumRetiro.addItemListener(e -> {
+            if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) cargarDesdeNumero();
+        });
+        colocar(datos, cboNumRetiro, 24, 64, 190, 30);
+
+        colocar(datos, Tema.etiqueta("Alumno (matr\u00edcula)"), 24, 106, 240, 16);
+        cboMatricula = new ComboBuscador<FichaMatricula>(f ->
+            f.getAlumno().getNombres() + " " + f.getAlumno().getApellidos() + "  \u00b7  Mat. " + f.getMatricula().getNumeroMatricula());
+        cboMatricula.setAlSeleccionar(this::mostrarMatricula);
+        colocar(datos, cboMatricula, 24, 124, 420, 30);
+        colocar(datos, Tema.etiqueta("N.\u00ba matr\u00edcula"), 460, 106, 100, 16);
+        txtNumMatricula = Tema.campoLectura();
+        colocar(datos, txtNumMatricula, 460, 124, 100, 30);
+        colocar(datos, Tema.etiqueta("Vigente"), 576, 106, 100, 16);
+        txtVigente = Tema.campoLectura();
+        colocar(datos, txtVigente, 576, 124, 100, 30);
+
+        colocar(datos, Tema.etiqueta("Curso"), 24, 166, 200, 16);
+        cboCurso = new ComboBuscador<Curso>(c -> c.getAsignatura() + "  \u00b7  " + c.getCodCurso());
+        cboCurso.setAlSeleccionar(c -> txtCodCurso.setText(c == null ? "" : String.valueOf(c.getCodCurso())));
+        colocar(datos, cboCurso, 24, 184, 420, 30);
+        colocar(datos, Tema.etiqueta("C\u00f3digo"), 460, 166, 100, 16);
+        txtCodCurso = Tema.campoLectura();
+        colocar(datos, txtCodCurso, 460, 184, 100, 30);
+        colocar(datos, Tema.etiqueta("Estado"), 576, 166, 100, 16);
+        txtEstado = Tema.campoLectura();
+        colocar(datos, txtEstado, 576, 184, 100, 30);
+
+        btnAceptar = boton("Aceptar", this);
+        colocar(datos, btnAceptar, 24, 228, 140, 34);
+        btnCancelar = boton("Cancelar", this);
+        colocar(datos, btnCancelar, 176, 228, 140, 34);
+
+        Tema.Tarjeta acciones = new Tema.Tarjeta("Acciones");
+        acciones.setBounds(740, 20, 200, 276);
+        cuerpo.add(acciones);
+        btnAdicionar = boton("Adicionar", this);
+        colocar(acciones, btnAdicionar, 20, 54, 160, 42);
+        btnModificar = boton("Modificar", this);
+        colocar(acciones, btnModificar, 20, 110, 160, 42);
+        btnEliminar = boton("Eliminar", this);
+        colocar(acciones, btnEliminar, 20, 166, 160, 42);
+
+        Tema.Tarjeta listado = new Tema.Tarjeta("Retiros registrados");
+        listado.setBounds(20, 312, 920, 248);
+        cuerpo.add(listado);
+        modelo = new DefaultTableModel(new Object[] {"N.\u00ba retiro", "N.\u00ba mat.", "Nombres", "Apellidos",
+                "Asignatura", "Fecha", "Hora"}, 0) {
+            @Override public boolean isCellEditable(int f, int c) { return false; }
+        };
+        tblRetiro = new JTable(modelo);
+        tblRetiro.addMouseListener(this);
+        JScrollPane sp = new JScrollPane(tblRetiro);
+        sp.setBounds(12, 40, 896, 196);
+        listado.add(sp);
+
+        Tema.montar(this, "Registro de retiros", "Registra el retiro de alumnos matriculados", cuerpo);
+        listar();
+        deshabilitarTodo();
     }
 
-    @Override
-    public void recibir(Evento evento, Object datos) {
+    private static void colocar(JPanel p, JComponent c, int x, int y, int w, int h) {
+        c.setBounds(x, y, w, h);
+        p.add(c);
+    }
+
+    private static JButton boton(String texto, ActionListener oyente) {
+        JButton b = new JButton(texto);
+        b.addActionListener(oyente);
+        return b;
+    }
+
+    // ---- Colega ------------------------------------------------------------
+    @Override public void setMediador(Mediador mediador) { this.mediador = mediador; }
+
+    @Override public void recibir(Evento evento, Object datos) {
         switch (evento) {
-            case DATOS_ACTUALIZADOS:                       // alguien cambió la BD: refresca la tabla
+            case DATOS_ACTUALIZADOS:
                 listar();
                 break;
-            case OPERACION_EXITOSA:                        // mi solicitud terminó bien
-                JOptionPane.showMessageDialog(this, (String) datos);
+            case OPERACION_EXITOSA:
+                JOptionPane.showMessageDialog(this, (String) datos, "Listo", JOptionPane.INFORMATION_MESSAGE);
                 deshabilitarTodo();
                 break;
-            case OPERACION_RECHAZADA:                      // una regla de negocio la rechazó
+            case OPERACION_RECHAZADA:
             case ERROR_TECNICO:
-                JOptionPane.showMessageDialog(this, (String) datos, "", JOptionPane.ERROR_MESSAGE);
-                cboNumMatricula.requestFocus();
+                JOptionPane.showMessageDialog(this, (String) datos, "No se pudo completar", JOptionPane.WARNING_MESSAGE);
+                cboMatricula.requestFocus();
                 break;
             default:
                 break;
         }
     }
 
-	public void itemStateChanged(ItemEvent e) {
-		if (e.getSource() == cboCodigoCurso) {
-			itemStateChangedCboCodigoCurso(e);
-		}
-		if (e.getSource() == cboNumMatricula) {
-			itemStateChangedCboNumMatricula(e);
-		}
-		if (e.getSource() == cboNumRetiro) {
-			itemStateChangedCboNumRetiro(e);
-		}
-	}
-	protected void itemStateChangedCboNumRetiro(ItemEvent e) {
-		try {
-			int numRetiro = leerNumeroRetiro();
-			Retiro buscadoR = ar.buscar(numRetiro);
-			Matricula buscadoM = am.buscar(buscadoR.getNumMatricula());
-			cboNumMatricula.setSelectedItem(buscadoR.getNumMatricula());
-			cboCodigoCurso.setSelectedItem(buscadoM.getCodigoCurso());
-			tblRetiro.setRowSelectionInterval(cboNumRetiro.getSelectedIndex(), cboNumRetiro.getSelectedIndex());
-		} catch (Exception error) {
-			
-		}
-	}
-	protected void itemStateChangedCboNumMatricula(ItemEvent e) {
-		try {
-			int numMatricula = leerNumeroMatricula();
-			Matricula buscado = am.buscar(numMatricula);
-			txtAlumno.setText(aa.buscar(buscado.getCodigoAlumno()).getNombres()
-					+ " " + aa.buscar(buscado.getCodigoAlumno()).getApellidos());
-			cboCodigoCurso.setSelectedItem(buscado.getCodigoCurso());
-			txtActivoMatricula.setText(activo(aa.buscar(buscado.getCodigoAlumno()).getEstado()));
-		} catch (Exception error) {
-			
-		}
-	}
-	protected void itemStateChangedCboCodigoCurso(ItemEvent e) {
-		try {
-			int codCurso = leerCodigoCurso();
-			Curso buscado = ac.buscar(codCurso);
-			txtCurso.setText(buscado.getAsignatura());
-		} catch (Exception error) {
-			
-		}
-	}
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == btnEliminar) {
-			actionPerformedBtnEliminar(e);
-		}
-		if (e.getSource() == btnModificar) {
-			actionPerformedBtnModificar(e);
-		}
-		if (e.getSource() == btnAdicionar) {
-			actionPerformedBtnAdicionar(e);
-		}
-		if (e.getSource() == btnCancelar) {
-			actionPerformedBtnCancelar(e);
-		}
-		if (e.getSource() == btnAceptar) {
-			actionPerformedBtnAceptar(e);
-		}
-	}
-protected void actionPerformedBtnAceptar(ActionEvent e) {
-    if (!btnAdicionar.isEnabled()) {
-        int numMatricula;
+    // ---- Seleccion ---------------------------------------------------------
+    private void mostrarMatricula(final FichaMatricula f) {
+        if (f == null) { txtNumMatricula.setText(""); txtVigente.setText(""); txtEstado.setText(""); return; }
+        Alumno a = f.getAlumno();
+        txtNumMatricula.setText(String.valueOf(f.getMatricula().getNumeroMatricula()));
+        txtVigente.setText(a.getEstado() == EstadoAlumno.MATRICULADO.getValor() ? "S\u00ed" : "No");
+        txtEstado.setText(Texto.titulo(EstadoAlumno.desde(a.getEstado()).name()));
+        cboCurso.seleccionarSi(c -> c.getCodCurso() == f.getCurso().getCodCurso());
+    }
+
+    private void cargarDesdeNumero() {
+        Object item = cboNumRetiro.getSelectedItem();
+        if (item == null) return;
+        final int num = (Integer) item;
+        for (final FichaRetiro r : retiros) {
+            if (r.getRetiro().getNumRetiro() == num) {
+                cboMatricula.seleccionarSi(f -> f.getMatricula().getNumeroMatricula() == r.getFicha().getMatricula().getNumeroMatricula());
+                return;
+            }
+        }
+    }
+
+    // ---- Botones -----------------------------------------------------------
+    @Override public void actionPerformed(ActionEvent e) {
+        Object o = e.getSource();
+        if (o == btnAceptar)        aceptar();
+        else if (o == btnCancelar)  deshabilitarTodo();
+        else if (o == btnAdicionar) adicionar();
+        else if (o == btnModificar) modificar();
+        else if (o == btnEliminar)  eliminar();
+    }
+
+    private void adicionar() {
+        limpiar();
+        // al retirar solo tienen sentido los alumnos que hoy estan matriculados
+        List<FichaMatricula> vigentes = new ArrayList<>();
+        for (FichaMatricula f : fichas)
+            if (f.getAlumno().getEstado() == EstadoAlumno.MATRICULADO.getValor()) vigentes.add(f);
+        cboMatricula.setItems(ordenar(vigentes));
+        habilitar(false, true, false, true, true, false, true, false);
+        cboMatricula.requestFocus();
+    }
+
+    private void modificar() {
+        if (!btnAdicionar.isEnabled()) deshabilitarTodo();
+        habilitar(true, false, true, true, true, true, false, false);
+        cboNumRetiro.requestFocus();
+    }
+
+    private void aceptar() {
+        if (!btnAdicionar.isEnabled()) {
+            FichaMatricula f = cboMatricula.getSeleccionado();
+            if (f == null) { error("Seleccione un alumno de la lista", cboMatricula); return; }
+            // 0 = marcador: MySQL asigna el numero real
+            mediador.notificar(this, Evento.RETIRO_ADICIONAR,
+                new Retiro(0, f.getMatricula().getNumeroMatricula(), Calendario.fechaActual(), Calendario.horaActual()));
+        } else if (!btnModificar.isEnabled()) {
+            Object num = cboNumRetiro.getSelectedItem();
+            Curso c = cboCurso.getSeleccionado();
+            if (num == null) { error("Seleccione un n\u00famero de retiro", cboNumRetiro); return; }
+            if (c == null) { error("Seleccione un curso de la lista", cboCurso); return; }
+            mediador.notificar(this, Evento.RETIRO_MODIFICAR, new CambioCurso((Integer) num, c.getCodCurso()));
+        }
+    }
+
+    private void eliminar() {
+        Object num = cboNumRetiro.getSelectedItem();
+        if (num == null) { error("Seleccione un retiro en la tabla", cboNumRetiro); return; }
+        FichaMatricula f = cboMatricula.getSeleccionado();
+        int r = JOptionPane.showConfirmDialog(this,
+            "\u00bfEst\u00e1 seguro de eliminar este retiro?\nAlumno: "
+                + (f == null ? "-" : f.getAlumno().getNombres() + " " + f.getAlumno().getApellidos())
+                + "\nCurso: " + (f == null ? "-" : f.getCurso().getAsignatura()),
+            "Confirmar", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (r == JOptionPane.YES_OPTION) mediador.notificar(this, Evento.RETIRO_ELIMINAR, (Integer) num);
+    }
+
+    // ---- Estado de la pantalla -------------------------------------------
+    private void habilitar(boolean numRetiro, boolean matricula, boolean curso, boolean aceptar, boolean cancelar,
+                           boolean adicionar, boolean modificar, boolean eliminar) {
+        cboNumRetiro.setEnabled(numRetiro);
+        cboMatricula.setEnabled(matricula);
+        cboCurso.setEnabled(curso);
+        btnAceptar.setEnabled(aceptar);
+        btnCancelar.setEnabled(cancelar);
+        btnAdicionar.setEnabled(adicionar);
+        btnModificar.setEnabled(modificar);
+        btnEliminar.setEnabled(eliminar);
+    }
+
+    private void deshabilitarTodo() {
+        cargarListas();
+        habilitar(false, false, false, false, false, true, true, true);
+        limpiar();
+    }
+
+    private void limpiar() {
+        cboNumRetiro.setSelectedIndex(-1);
+        cboMatricula.limpiar();
+        cboCurso.limpiar();
+        mostrarMatricula(null);
+        txtCodCurso.setText("");
+    }
+
+    private List<FichaMatricula> ordenar(List<FichaMatricula> lista) {
+        lista.sort(Comparator.comparing(f -> Texto.clave(f.getAlumno().getNombres() + " " + f.getAlumno().getApellidos())));
+        return lista;
+    }
+
+    private void cargarListas() {
         try {
-            numMatricula = leerNumeroMatricula();
-        } catch (RuntimeException ex) {
-            error("Seleccione un número de matrícula", cboNumMatricula);
-            return;
+            cboNumRetiro.removeAllItems();
+            retiros = consultas.fichasRetiros();
+            for (FichaRetiro r : retiros) cboNumRetiro.addItem(r.getRetiro().getNumRetiro());
+            fichas = consultas.fichasMatriculas();
+            cboMatricula.setItems(ordenar(new ArrayList<>(fichas)));
+            List<Curso> cursos = consultas.cursos();
+            cursos.sort(Comparator.comparing(c -> Texto.clave(c.getAsignatura())));
+            cboCurso.setItems(cursos);
+        } catch (Exception ex) {
+            mensaje("No se pudieron cargar los datos");
         }
-        // 0 = placeholder: MySQL asigna el número real
-        Retiro nuevo = new Retiro(0, numMatricula, Calendario.fechaActual(), Calendario.horaActual());
-        mediador.notificar(this, Evento.RETIRO_ADICIONAR, nuevo);
-    } else if (!btnModificar.isEnabled()) {
-        int numRetiro, codCurso;
+        cboNumRetiro.setSelectedIndex(-1);
+    }
+
+    private void listar() {
+        modelo.setRowCount(0);
         try {
-            numRetiro = leerNumeroRetiro();
-            codCurso  = leerCodigoCurso();
-        } catch (RuntimeException ex) {
-            error("Seleccione un número de retiro", cboNumRetiro);
-            return;
-        }
-        mediador.notificar(this, Evento.RETIRO_MODIFICAR, new CambioCurso(numRetiro, codCurso));
-    }
-}
-	protected void actionPerformedBtnCancelar(ActionEvent e) {
-		deshabilitarTodo();
-	}
-protected void actionPerformedBtnAdicionar(ActionEvent e) {
-    limpiar();
-    habilitar(false, true, false, false, false, false, true, true, false, true, false);
-    cboNumRetiro.removeAllItems();
-    cboNumRetiro.addItem(0);
-    cboNumMatricula.requestFocus();
-}
-	protected void actionPerformedBtnModificar(ActionEvent e) {
-		if (!btnAdicionar.isEnabled()) deshabilitarTodo();
-		habilitar(true, false, false, true, false, false, true, true, true, false, false);
-		cboNumRetiro.requestFocus();
-	}
-protected void actionPerformedBtnEliminar(ActionEvent e) {
-    int numRetiro;
-    try {
-        numRetiro = leerNumeroRetiro();
-    } catch (RuntimeException ex) {
-        error("Seleccione un número de retiro", cboNumRetiro);
-        return;
-    }
-    if (confirmar() == 0) {
-        mediador.notificar(this, Evento.RETIRO_ELIMINAR, numRetiro);
-    }
-}
-	void habilitar(boolean numRetiro, boolean numMatricula, boolean alumno, boolean codigoCurso, boolean curso,
-			boolean activoMatricula, boolean aceptar, boolean cancelar, boolean adicionar, boolean modificar, boolean eliminar) {
-		cboNumRetiro.setEnabled(numRetiro);
-		cboNumMatricula.setEnabled(numMatricula);
-		txtAlumno.setEditable(alumno);
-		cboCodigoCurso.setEnabled(codigoCurso);
-		txtCurso.setEditable(curso);
-		txtActivoMatricula.setEditable(activoMatricula);
-		btnAceptar.setEnabled(aceptar);
-		btnCancelar.setEnabled(cancelar);
-		btnAdicionar.setEnabled(adicionar);
-		btnModificar.setEnabled(modificar);
-		btnEliminar.setEnabled(eliminar);
-	}
-	void deshabilitarTodo() {
-		listarCboNumRetiro();
-		listarCboNumMatricula();
-		listarCboCodCurso();
-		habilitar(false, false, false, false, false, false, false, false, true, true, true);
-		limpiar();
-	}
-	void limpiar() {
-		cboNumRetiro.setSelectedIndex(-1);
-		cboNumMatricula.setSelectedIndex(-1);
-		txtAlumno.setText("");
-		cboCodigoCurso.setSelectedIndex(-1);
-		txtCurso.setText("");
-		txtActivoMatricula.setText("");
-	}
-	void listarCboNumRetiro() {
-    cboNumRetiro.removeAllItems();
-    try {
-        for (Retiro r : ar.listar()) {
-            cboNumRetiro.addItem(r.getNumRetiro());
-        }
-    } catch (Exception ex) { mensaje("Error cargando retiros"); }
-    cboNumRetiro.setSelectedIndex(-1);
-}
-void listarCboNumMatricula() {
-    cboNumMatricula.removeAllItems();
-    try {
-        for (Matricula m : am.listar()) {
-            cboNumMatricula.addItem(m.getNumeroMatricula());
-        }
-    } catch (Exception ex) { mensaje("Error cargando matrículas"); }
-    cboNumMatricula.setSelectedIndex(-1);
-}
-void listarCboCodCurso() {
-    cboCodigoCurso.removeAllItems();
-    try {
-        for (Curso c : ac.listar()) {
-            cboCodigoCurso.addItem(c.getCodCurso());
-        }
-    } catch (Exception ex) { mensaje("Error cargando cursos"); }
-    cboCodigoCurso.setSelectedIndex(-1);
-}
-	void ajustarColumnas() {
-		TableColumnModel modeloColuma = tblRetiro.getColumnModel();
-		modeloColuma.getColumn(0).setPreferredWidth(scrollPane.getWidth()*3);
-		modeloColuma.getColumn(1).setPreferredWidth(scrollPane.getWidth()*2);
-		modeloColuma.getColumn(2).setPreferredWidth(scrollPane.getWidth()*5);
-		modeloColuma.getColumn(3).setPreferredWidth(scrollPane.getWidth()*6);
-		modeloColuma.getColumn(4).setPreferredWidth(scrollPane.getWidth()*11);
-		modeloColuma.getColumn(5).setPreferredWidth(scrollPane.getWidth()*3);
-		modeloColuma.getColumn(6).setPreferredWidth(scrollPane.getWidth()*3);
-	}
-void listar() {
-    modelo.setRowCount(0);
-    try {
-        for (Retiro r : ar.listar()) {
-            Matricula m = am.buscar(r.getNumMatricula());
-            Alumno a = aa.buscar(m.getCodigoAlumno());
-            Curso c = ac.buscar(m.getCodigoCurso());
-            Object[] fila = {
-                r.getNumRetiro(),
-                r.getNumMatricula(),
-                a.getNombres(),
-                a.getApellidos(),
-                c.getAsignatura(),
-                r.getFecha(),
-                r.getHora()
-            };
-            modelo.addRow(fila);
-        }
-    } catch (Exception ex) {
-        mensaje("Error listando retiros");
-    }
-}
-	int leerNumeroRetiro() {
-		return Integer.parseInt(cboNumRetiro.getSelectedItem().toString());
-	}
-	int leerNumeroMatricula() {
-		return Integer.parseInt(cboNumMatricula.getSelectedItem().toString());
-	}
-	String leerAlumno() {
-		return txtAlumno.getText().trim().toUpperCase();
-	}
-	int leerCodigoCurso() {
-		return Integer.parseInt(cboCodigoCurso.getSelectedItem().toString());
-	}
-	String leerCurso() {
-		return txtCurso.getText().trim().toUpperCase();
-	}
-	String activo(int i) {
-		return i == 1 ? "S�" : "No";
-	}
-	void mensaje(String s) {
-		JOptionPane.showMessageDialog(this, s);
-	}
-	void error(String s, JComboBox cbo) {
-		JOptionPane.showMessageDialog(this, s,"", JOptionPane.ERROR_MESSAGE);
-		cbo.requestFocus();
-	}
-	int confirmar() {
-		int valor = JOptionPane.showOptionDialog(null,
-				"Estas seguro que deseas eliminar este retiro?\n"
-				+ "Alumno: " + leerAlumno() + "\n" + "Curso: " + leerCurso(),
-				"Confirmar",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[] {"Si", "No"}, null);
-		return valor;
-	}
-	public void mouseClicked(MouseEvent e) {
-		if (e.getSource() == tblRetiro) {
-			mouseClickedTblRetiro(e);
-		}
-	}
-	public void mouseEntered(MouseEvent e) {
-	}
-	public void mouseExited(MouseEvent e) {
-	}
-	public void mousePressed(MouseEvent e) {
-	}
-	public void mouseReleased(MouseEvent e) {
-	}
-protected void mouseClickedTblRetiro(MouseEvent e) {
-    if (btnAdicionar.isEnabled()) {
-        try {
-            int row = tblRetiro.getSelectedRow();
-            if (row >= 0) {
-                int numRetiro = (int) tblRetiro.getValueAt(row, 0);
-                Retiro buscado = ar.buscar(numRetiro);
-                cboNumRetiro.setSelectedItem(buscado.getNumRetiro());
-                cboNumMatricula.setSelectedItem(buscado.getNumMatricula());
+            retiros = consultas.fichasRetiros();
+            for (FichaRetiro fr : retiros) {
+                Retiro r = fr.getRetiro();
+                Alumno a = fr.getFicha().getAlumno();
+                modelo.addRow(new Object[] {r.getNumRetiro(), r.getNumMatricula(), a.getNombres(), a.getApellidos(),
+                    fr.getFicha().getCurso().getAsignatura(), r.getFecha(), r.getHora()});
             }
         } catch (Exception ex) {
-            mensaje("Error seleccionando retiro");
+            mensaje("Error listando retiros");
         }
     }
-}
+
+    private void mensaje(String s) {
+        JOptionPane.showMessageDialog(this, s);
+    }
+
+    private void error(String s, JComponent c) {
+        JOptionPane.showMessageDialog(this, s, "Atenci\u00f3n", JOptionPane.WARNING_MESSAGE);
+        c.requestFocus();
+    }
+
+    // ---- Tabla -------------------------------------------------------------
+    @Override public void mouseClicked(MouseEvent e) {
+        if (e.getSource() == tblRetiro && btnAdicionar.isEnabled()) {
+            int fila = tblRetiro.getSelectedRow();
+            if (fila >= 0) cboNumRetiro.setSelectedItem(tblRetiro.getValueAt(fila, 0));
+        }
+    }
+    @Override public void mouseEntered(MouseEvent e) { }
+    @Override public void mouseExited(MouseEvent e) { }
+    @Override public void mousePressed(MouseEvent e) { }
+    @Override public void mouseReleased(MouseEvent e) { }
 }

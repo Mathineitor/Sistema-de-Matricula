@@ -58,6 +58,7 @@ public class DlgReporteAMV extends JDialog implements ActionListener {
 		txtResultado = new JTextArea();
 		txtResultado.setFont(new Font("Monospaced", Font.BOLD, 13));
 		scrollPane.setViewportView(txtResultado);
+			Tema.aplicar(this, "Alumnos con matr\u00edcula vigente", "Alumnos actualmente matriculados");
 	}
 	
 	//DECLARACION GLOBAL

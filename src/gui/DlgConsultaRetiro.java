@@ -71,6 +71,7 @@ public class DlgConsultaRetiro extends JDialog implements ActionListener {
 		scrollPane.setViewportView(txtResultado);
 		
 		listarCboCodigo();
+			Tema.aplicar(this, "Consulta de retiro", "Ficha completa de un retiro");
 	}
 	
 	//declaracion global
@@ -137,17 +138,7 @@ RetiroDao ar = new RetiroDao();
     }
     cboCodigo.setSelectedIndex(-1);
 }
-	String nombreCiclo(int i) {
-		switch (i) {
-			case 0: return "PRIMERO";
-			case 1: return "SEGUNDO";
-			case 2: return "TERCERO";
-			case 3: return "CUARTO";
-			case 4: return "QUINTO";
-			case 5: return "SEXTO";
-			default:return null;
-		}
-	}
+	String nombreCiclo(int i) { return Ciclo.nombre(i); }
 	void imprimir(String s){
 		txtResultado.append(s + "\n"); 
 	}

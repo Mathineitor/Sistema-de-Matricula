@@ -51,6 +51,7 @@ public class FrmPrincipal extends JFrame implements ActionListener {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					Tema.instalar();
 					FrmPrincipal frame = new FrmPrincipal();
 					frame.setLocationRelativeTo(null);
 					frame.setVisible(true);
@@ -68,9 +69,18 @@ public class FrmPrincipal extends JFrame implements ActionListener {
 	public FrmPrincipal() {
             
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 870, 700);
+		setTitle("Sistema de Matr\u00edcula");
+		setBounds(100, 100, 1000, 720);
 		
-		menuBar = new JMenuBar();
+		menuBar = new JMenuBar() {
+			@Override protected void paintComponent(java.awt.Graphics g) {
+				java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+				g2.setPaint(new java.awt.GradientPaint(0, 0, Tema.ENCABEZADO_1, getWidth(), 0, Tema.ENCABEZADO_2));
+				g2.fillRect(0, 0, getWidth(), getHeight());
+				g2.dispose();
+			}
+		};
+		menuBar.setBorder(javax.swing.BorderFactory.createEmptyBorder(4, 8, 4, 8));
 		setJMenuBar(menuBar);
 		
 		mnArchivo = new JMenu("Archivo");
@@ -98,7 +108,7 @@ public class FrmPrincipal extends JFrame implements ActionListener {
 		mnRegistro.setMnemonic('R');
 		menuBar.add(mnRegistro);
 		
-		mntmRegMatricula = new JMenuItem("Matricula");
+		mntmRegMatricula = new JMenuItem("Matr\u00edcula");
 		mntmRegMatricula.addActionListener(this);
 		mnRegistro.add(mntmRegMatricula);
 		
@@ -118,7 +128,7 @@ public class FrmPrincipal extends JFrame implements ActionListener {
 		mntmConsCurso.addActionListener(this);
 		mnConsulta.add(mntmConsCurso);
 		
-		mntmConsMatricula = new JMenuItem("Matricula");
+		mntmConsMatricula = new JMenuItem("Matr\u00edcula");
 		mntmConsMatricula.addActionListener(this);
 		mnConsulta.add(mntmConsMatricula);
 		
@@ -131,11 +141,11 @@ public class FrmPrincipal extends JFrame implements ActionListener {
 		mnReporte.setMnemonic('p');
 		menuBar.add(mnReporte);
 		
-		mntmAlumMatPendiente = new JMenuItem("Alumnos con matricula pendiente");
+		mntmAlumMatPendiente = new JMenuItem("Alumnos con matr\u00edcula pendiente");
 		mntmAlumMatPendiente.addActionListener(this);
 		mnReporte.add(mntmAlumMatPendiente);
 		
-		mntmAlumMatVigente = new JMenuItem("Alumnos con matricula vigente");
+		mntmAlumMatVigente = new JMenuItem("Alumnos con matr\u00edcula vigente");
 		mntmAlumMatVigente.addActionListener(this);
 		mnReporte.add(mntmAlumMatVigente);
 		
@@ -143,11 +153,18 @@ public class FrmPrincipal extends JFrame implements ActionListener {
 		mntmAlumMatCurso.addActionListener(this);
 		mnReporte.add(mntmAlumMatCurso);
 		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		contentPane.setBorder(new EmptyBorder(0, 0, 0, 0));
+		contentPane.setBackground(Tema.FONDO);
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 	        
-dashboard = new PnlDashboard();
+for (int i = 0; i < menuBar.getMenuCount(); i++) {
+			JMenu m = menuBar.getMenu(i);
+			m.setForeground(java.awt.Color.WHITE);
+			m.setFont(Tema.fuente(java.awt.Font.BOLD, 13));
+			for (java.awt.Component it : m.getMenuComponents()) it.setFont(Tema.fuente(java.awt.Font.PLAIN, 13));
+		}
+		dashboard = new PnlDashboard();
 dashboard.setMediador(mediador);
 mediador.registrar(dashboard);   // el dashboard escucha al Mediador
 contentPane.add(dashboard, BorderLayout.CENTER);
@@ -194,9 +211,9 @@ contentPane.add(dashboard, BorderLayout.CENTER);
 		}
 	}
 	protected void actionPerformedMntmSalir(ActionEvent e) {
-		int valor = JOptionPane.showOptionDialog(null, "Estas seguro que deseas cerrar el programa?","Confirmar",
-				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[] {"Si", "No"}, null);
-		if (valor == 0) System.exit(0);
+		int valor = JOptionPane.showConfirmDialog(this, "\u00bfEst\u00e1 seguro de que desea cerrar el programa?",
+				"Confirmar", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		if (valor == JOptionPane.YES_OPTION) System.exit(0);
 	}
 protected void actionPerformedMntmMantAlumno(ActionEvent e)     { abrirColega(new DlgMantAlumno()); }
 	protected void actionPerformedMntmMantCurso(ActionEvent e)      { abrirColega(new DlgMantCurso()); }
@@ -210,7 +227,7 @@ protected void actionPerformedMntmMantAlumno(ActionEvent e)     { abrirColega(ne
 	protected void actionPerformedMntmAlumMatVigente(ActionEvent e)   { abrir(new DlgReporteAMV()); }
 	protected void actionPerformedMntmAlumMatCurso(ActionEvent e)     { abrir(new DlgReporteAMC()); }
 
-	/** Diálogo de solo lectura: se muestra y se libera. */
+	/** Di\u00e1logo de solo lectura: se muestra y se libera. */
 	private void abrir(JDialog dlg) {
 		dlg.setModal(true);
 		dlg.setLocationRelativeTo(this);
@@ -218,7 +235,7 @@ protected void actionPerformedMntmMantAlumno(ActionEvent e)     { abrirColega(ne
 		dlg.dispose();
 	}
 
-	/** Diálogo que participa en el Mediador: se registra al abrir y se da de baja al cerrar. */
+	/** Di\u00e1logo que participa en el Mediador: se registra al abrir y se da de baja al cerrar. */
 	private <T extends JDialog & Colega> void abrirColega(T dlg) {
 		dlg.setMediador(mediador);
 		mediador.registrar(dlg);

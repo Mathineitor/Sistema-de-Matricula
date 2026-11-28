@@ -53,7 +53,7 @@ public class AlumnoDao {
     }
   }
 
-  /** Versión para usar dentro de una transacción (misma conexión). */
+  /** Versi\u00f3n para usar dentro de una transacci\u00f3n (misma conexi\u00f3n). */
   public Alumno buscar(Connection cn, int codAlumno) throws Exception {
     String sql = "SELECT * FROM alumnos WHERE cod_alumno = ?";
     try (PreparedStatement ps = cn.prepareStatement(sql)) {
@@ -65,7 +65,7 @@ public class AlumnoDao {
     return null;
   }
 
-  /** Cambia solo el estado (0 registrado, 1 matriculado, 2 retirado) dentro de una transacción. */
+  /** Cambia solo el estado (0 registrado, 1 matriculado, 2 retirado) dentro de una transacci\u00f3n. */
   public void actualizarEstado(Connection cn, int codAlumno, int estado) throws Exception {
     String sql = "UPDATE alumnos SET estado = ? WHERE cod_alumno = ?";
     try (PreparedStatement ps = cn.prepareStatement(sql)) {
@@ -86,14 +86,22 @@ public class AlumnoDao {
     return lista;
   }
 
+  /**
+   * Codigo con el anio actual: AAAA + "10" + correlativo (2026 -> 202610001, 202610002, ...).
+   * Cada anio reinicia su propia secuencia.
+   */
   public int codigoCorrelativo() throws Exception {
-    String sql = "SELECT MAX(cod_alumno) AS maxcod FROM alumnos";
-    try (Connection cn = Conexion.getConnection(); 
-            Statement st = cn.createStatement(); 
-            ResultSet rs = st.executeQuery(sql)) {
-       if (rs.next()) return rs.getInt("maxcod") + 1;
+    int base = java.time.Year.now().getValue() * 100000 + 10000;     // 2026 -> 202610000
+    String sql = "SELECT MAX(cod_alumno) AS maxcod FROM alumnos WHERE cod_alumno BETWEEN ? AND ?";
+    try (Connection cn = Conexion.getConnection();
+         PreparedStatement ps = cn.prepareStatement(sql)) {
+      ps.setInt(1, base + 1);
+      ps.setInt(2, base + 9999);
+      try (ResultSet rs = ps.executeQuery()) {
+        if (rs.next() && rs.getInt("maxcod") > 0) return rs.getInt("maxcod") + 1;
+      }
     }
-    return 202010001; // inicio por defecto
+    return base + 1;                                                 // primer alumno del anio
   }
 
   public boolean existeDNI(String dni) throws Exception {

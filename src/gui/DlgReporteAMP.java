@@ -58,6 +58,7 @@ public class DlgReporteAMP extends JDialog implements ActionListener {
 		txtResultado = new JTextArea();
 		txtResultado.setFont(new Font("Monospaced", Font.BOLD, 13));
 		scrollPane.setViewportView(txtResultado);
+			Tema.aplicar(this, "Alumnos con matr\u00edcula pendiente", "Alumnos registrados que a\u00fan no se matriculan");
 	}
 	
 	//DECLARACION GLOBAL

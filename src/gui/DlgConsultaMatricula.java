@@ -73,6 +73,7 @@ public class DlgConsultaMatricula extends JDialog implements ActionListener {
 		scrollPane.setViewportView(txtResultado);
 		
 		listarCboCodigo();
+			Tema.aplicar(this, "Consulta de matr\u00edcula", "Ficha completa de una matr\u00edcula");
 	}
 	//declaracion global
 MatriculaDao am = new MatriculaDao();               // solo para llenar el combo
@@ -121,7 +122,7 @@ void listar() {
         imprimir("CREDITOS      : " + c.getCreditos());
         imprimir("HORAS         : " + c.getHoras());
     } catch (Exception ex) {
-        mensaje("Error consultando matrícula");
+        mensaje("Error consultando matr\u00edcula");
     }
 }
 void listarCboCodigo() {
@@ -131,21 +132,11 @@ void listarCboCodigo() {
             cboCodigo.addItem(m.getNumeroMatricula());
         }
     } catch (Exception ex) {
-        mensaje("Error cargando matrículas");
+        mensaje("Error cargando matr\u00edculas");
     }
     cboCodigo.setSelectedIndex(-1);
 }
-	String nombreCiclo(int i) {
-		switch (i) {
-			case 0: return "PRIMERO";
-			case 1: return "SEGUNDO";
-			case 2: return "TERCERO";
-			case 3: return "CUARTO";
-			case 4: return "QUINTO";
-			case 5: return "SEXTO";
-			default:return null;
-		}
-	}
+	String nombreCiclo(int i) { return Ciclo.nombre(i); }
 	void imprimir(String s){
 		txtResultado.append(s + "\n"); 
 	}

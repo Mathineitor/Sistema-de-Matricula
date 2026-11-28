@@ -126,8 +126,8 @@ public class DlgMantAlumno extends JDialog implements ItemListener, ActionListen
     public void keyTyped(java.awt.event.KeyEvent evt) {
         char c = evt.getKeyChar();
         if (Character.isDigit(c)) {
-            evt.consume(); // bloquea el número
-            JOptionPane.showMessageDialog(null, "No se permiten números en el nombre");
+            evt.consume(); // bloquea el n\u00famero
+            JOptionPane.showMessageDialog(null, "No se permiten n\u00fameros en el nombre");
         }
     }
 });
@@ -141,7 +141,7 @@ public class DlgMantAlumno extends JDialog implements ItemListener, ActionListen
         char c = evt.getKeyChar();
         if (Character.isDigit(c)) {
             evt.consume();
-            JOptionPane.showMessageDialog(null, "No se permiten números en el apellido");
+            JOptionPane.showMessageDialog(null, "No se permiten n\u00fameros en el apellido");
         }
     }
 });
@@ -158,14 +158,14 @@ public class DlgMantAlumno extends JDialog implements ItemListener, ActionListen
                 txtEdad.addKeyListener(new java.awt.event.KeyAdapter() {
     public void keyTyped(java.awt.event.KeyEvent evt) {
         char c = evt.getKeyChar();
-        // Solo permitir números
+        // Solo permitir n\u00fameros
         if (!Character.isDigit(c)) {
             evt.consume();
-            JOptionPane.showMessageDialog(null, "Solo se permiten números en la edad");
+            JOptionPane.showMessageDialog(null, "Solo se permiten n\u00fameros en la edad");
             return;
         }
 
-        // Validar que no supere 2 dígitos
+        // Validar que no supere 2 d\u00edgitos
         if (txtEdad.getText().length() >= 2) {
             evt.consume();
         }
@@ -180,7 +180,7 @@ public class DlgMantAlumno extends JDialog implements ItemListener, ActionListen
 		getContentPane().add(txtCelular);
 		
 		cboEstado = new JComboBox<String>();
-		cboEstado.setModel(new DefaultComboBoxModel<String>(new String[] {"REGISTRADO", "MATRICULADO", "RETIRADO"}));
+		cboEstado.setModel(new DefaultComboBoxModel<String>(new String[] {"Registrado", "Matriculado", "Retirado"}));
 		cboEstado.setBounds(97, 180, 115, 21);
 		getContentPane().add(cboEstado);
 		
@@ -236,13 +236,14 @@ public class DlgMantAlumno extends JDialog implements ItemListener, ActionListen
 		listar();
 		deshabilitarTodo();
 		
+			Tema.aplicar(this, "Mantenimiento de alumnos", "Registra, modifica y elimina alumnos del sistema");
 	}
 	//DECLARACIoN GLOBAL
 	AlumnoDao aa = new AlumnoDao();
 
 
 
-    // ── Colega: comunicación con el Mediador ─────────────────────────
+    // \u2500\u2500 Colega: comunicaci\u00f3n con el Mediador \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
     private Mediador mediador;
 
     @Override
@@ -253,14 +254,14 @@ public class DlgMantAlumno extends JDialog implements ItemListener, ActionListen
     @Override
     public void recibir(Evento evento, Object datos) {
         switch (evento) {
-            case DATOS_ACTUALIZADOS:                       // alguien cambió la BD: refresca la tabla
+            case DATOS_ACTUALIZADOS:                       // alguien cambi\u00f3 la BD: refresca la tabla
                 listar();
                 break;
-            case OPERACION_EXITOSA:                        // mi solicitud terminó bien
+            case OPERACION_EXITOSA:                        // mi solicitud termin\u00f3 bien
                 JOptionPane.showMessageDialog(this, (String) datos);
                 deshabilitarTodo();
                 break;
-            case OPERACION_RECHAZADA:                      // una regla de negocio la rechazó
+            case OPERACION_RECHAZADA:                      // una regla de negocio la rechaz\u00f3
             case ERROR_TECNICO:
                 JOptionPane.showMessageDialog(this, (String) datos, "", JOptionPane.ERROR_MESSAGE);
                 cboCodigo.requestFocus();
@@ -375,12 +376,12 @@ protected void actionPerformedBtnAdicionar(ActionEvent e) {
     habilitar(false, true, true, true, true, true, false, true, true, false, true, false);
     cboEstado.setSelectedIndex(0);
     try {
-        int nuevoCodigo = aa.codigoCorrelativo(); // obtiene el siguiente código desde BD
+        int nuevoCodigo = aa.codigoCorrelativo(); // obtiene el siguiente c\u00f3digo desde BD
         cboCodigo.removeAllItems();               // limpia el combo
-        cboCodigo.addItem(nuevoCodigo);           // añade el nuevo código
-        cboCodigo.setSelectedIndex(0);            // selecciona ese único valor
+        cboCodigo.addItem(nuevoCodigo);           // a\u00f1ade el nuevo c\u00f3digo
+        cboCodigo.setSelectedIndex(0);            // selecciona ese \u00fanico valor
     } catch (Exception ex) {
-        mensaje("Error generando código correlativo");
+        mensaje("Error generando c\u00f3digo correlativo");
     }
     txtNombres.requestFocus();
 }
@@ -471,7 +472,7 @@ modelo.setRowCount(0);
         
 boolean existeDNI(String dni) {
     try {
-        return aa.existeDNI(dni); // ✅ ahora consulta en BD
+        return aa.existeDNI(dni); // \u2705 ahora consulta en BD
     } catch (Exception ex) {
         mensaje("Error verificando DNI");
         return false;
@@ -481,13 +482,13 @@ boolean existeDNI(String dni) {
 		return Integer.parseInt(cboCodigo.getSelectedItem().toString());
 	}
 	String leerNombres() {
-		return txtNombres.getText().trim().toUpperCase();
+		return txtNombres.getText().trim();
 	}
 	String leerApellidos() {
-		return txtApellidos.getText().trim().toUpperCase();
+		return txtApellidos.getText().trim();
 	}
 	String leerDNI() {
-		return txtDNI.getText().trim().toUpperCase();
+		return txtDNI.getText().trim();
 	}
 	int leerEdad() {
 		return Integer.parseInt(txtEdad.getText().trim());
@@ -498,14 +499,7 @@ boolean existeDNI(String dni) {
 	int leerEstado() {
 		return cboEstado.getSelectedIndex();
 	}
-	String nombreEstado(int i) {
-		switch (i) {
-			case 0: return "REGISTRADO";
-			case 1: return "MATRICULADO";
-			case 2: return "RETIRADO";
-			default:return null;
-		}
-	}
+	String nombreEstado(int i) { return Texto.titulo(EstadoAlumno.desde(i).name()); }
 	void mensaje(String s) {
 		JOptionPane.showMessageDialog(this, s);
 	}
@@ -521,7 +515,7 @@ boolean existeDNI(String dni) {
 int confirmar() {
     try {
         Alumno buscado = aa.buscar(leerCodigo());
-        String mensaje = "¿Estás seguro que deseas eliminar a este alumno?\n"
+        String mensaje = "\u00bfEst\u00e1s seguro que deseas eliminar a este alumno?\n"
                        + buscado.getNombres() + " " + buscado.getApellidos();
         int valor = JOptionPane.showOptionDialog(
                 null,
@@ -530,7 +524,7 @@ int confirmar() {
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
                 null,
-                new Object[] {"Sí", "No"},
+                new Object[] {"S\u00ed", "No"},
                 null
         );
         return valor;

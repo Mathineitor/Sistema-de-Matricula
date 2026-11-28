@@ -1,508 +1,301 @@
 package gui;
 
-import arreglos.*;
 import clases.*;
-import mediador.*;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumnModel;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import java.awt.Font;
-import javax.swing.JComboBox;
-import javax.swing.DefaultComboBoxModel;
-import java.awt.event.ItemListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.Dimension;
+import java.util.Comparator;
+import java.util.List;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import mediador.*;
+import servicios.ConsultasFacade;
+import servicios.ConsultasFacade.FichaMatricula;
 
-public class DlgRegMatricula extends JDialog implements ItemListener, ActionListener, MouseListener, Colega {
-	private JLabel lblNewLabel;
-	private JLabel lblNewLabel_1;
-	private JLabel lblNewLabel_2;
-	private JComboBox<Integer> cboNumMatricula;
-	private JComboBox<Integer> cboCodigoAlumno;
-	private JButton btnAceptar;
-	private JButton btnCancelar;
-	private JButton btnAdicionar;
-	private JButton btnModificar;
-	private JButton btnEliminar;
-	private JScrollPane scrollPane;
-	private JTextField txtAlumno;
-	private JLabel lblNewLabel_3;
-	private JComboBox<Integer> cboCodigoCurso;
-	private JTextField txtCurso;
-	private JLabel lblNewLabel_4;
-	private JTable tblMatricula;
-	private DefaultTableModel modelo;
-	private JTextField txtEstadoAlumno;
+/** Registro de matriculas. El alumno y el curso se buscan escribiendo su nombre. */
+public class DlgRegMatricula extends JDialog implements ActionListener, MouseListener, Colega {
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		try {
-			DlgRegMatricula dialog = new DlgRegMatricula();
-			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			dialog.setVisible(true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Create the dialog.
-	 */
-	public DlgRegMatricula() {
-		setTitle("REGISTRO DE MATRICULAS");
-		setBounds(100, 100, 850, 514);
-		getContentPane().setLayout(null);
-		
-		lblNewLabel = new JLabel("");
-		lblNewLabel.setBounds(492, 22, 193, 168);
-		getContentPane().add(lblNewLabel);
-		
-		lblNewLabel_1 = new JLabel("N\u00FAmero de Matr\u00EDcula:");
-		lblNewLabel_1.setFont(new Font("Tahoma", Font.BOLD, 12));
-		lblNewLabel_1.setBounds(10, 22, 136, 15);
-		getContentPane().add(lblNewLabel_1);
-		
-		lblNewLabel_2 = new JLabel("C\u00F3digo del alumno:");
-		lblNewLabel_2.setFont(new Font("Tahoma", Font.BOLD, 12));
-		lblNewLabel_2.setBounds(10, 57, 136, 15);
-		getContentPane().add(lblNewLabel_2);
-		
-		lblNewLabel_3 = new JLabel("Estado:");
-		lblNewLabel_3.setFont(new Font("Tahoma", Font.BOLD, 12));
-		lblNewLabel_3.setBounds(10, 122, 136, 15);
-		getContentPane().add(lblNewLabel_3);
-		
-		lblNewLabel_4 = new JLabel("C\u00F3digo de curso:");
-		lblNewLabel_4.setFont(new Font("Tahoma", Font.BOLD, 12));
-		lblNewLabel_4.setBounds(10, 157, 136, 15);
-		getContentPane().add(lblNewLabel_4);
-		
-		cboNumMatricula = new JComboBox<Integer>();
-		cboNumMatricula.addItemListener(this);
-		cboNumMatricula.setSelectedIndex(-1);
-		cboNumMatricula.setEnabled(false);
-		cboNumMatricula.setBounds(156, 22, 152, 21);
-		getContentPane().add(cboNumMatricula);
-		
-		cboCodigoAlumno = new JComboBox<Integer>();
-		cboCodigoAlumno.addItemListener(this);
-		cboCodigoAlumno.setSelectedIndex(-1);
-		cboCodigoAlumno.setEnabled(false);
-		cboCodigoAlumno.setBounds(156, 55, 152, 21);
-		getContentPane().add(cboCodigoAlumno);
-		
-		txtAlumno = new JTextField();
-		txtAlumno.setText("");
-		txtAlumno.setEditable(false);
-		txtAlumno.setColumns(10);
-		txtAlumno.setBounds(10, 91, 298, 19);
-		getContentPane().add(txtAlumno);
-		
-		cboCodigoCurso = new JComboBox<Integer>();
-		cboCodigoCurso.addItemListener(this);
-		
-		txtEstadoAlumno = new JTextField();
-		txtEstadoAlumno.setText("");
-		txtEstadoAlumno.setEditable(false);
-		txtEstadoAlumno.setColumns(10);
-		txtEstadoAlumno.setBounds(156, 121, 152, 19);
-		getContentPane().add(txtEstadoAlumno);
-		cboCodigoCurso.setSelectedIndex(-1);
-		cboCodigoCurso.setEnabled(false);
-		cboCodigoCurso.setBounds(156, 155, 152, 21);
-		getContentPane().add(cboCodigoCurso);
-		
-		txtCurso = new JTextField();
-		txtCurso.setText("");
-		txtCurso.setEditable(false);
-		txtCurso.setColumns(10);
-		txtCurso.setBounds(10, 191, 298, 19);
-		getContentPane().add(txtCurso);
-		
-		btnAceptar = new JButton("Aceptar");
-		btnAceptar.addActionListener(this);
-		btnAceptar.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		btnAceptar.setEnabled(false);
-		btnAceptar.setBounds(10, 227, 142, 27);
-		getContentPane().add(btnAceptar);
-		
-		btnCancelar = new JButton("Cancelar");
-		btnCancelar.addActionListener(this);
-		btnCancelar.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		btnCancelar.setEnabled(false);
-		btnCancelar.setBounds(166, 227, 142, 27);
-		getContentPane().add(btnCancelar);
-		
-		btnAdicionar = new JButton("Adicionar");
-		btnAdicionar.addActionListener(this);
-		btnAdicionar.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		btnAdicionar.setEnabled(true);
-		btnAdicionar.setBounds(722, 22, 104, 33);
-		getContentPane().add(btnAdicionar);
-		
-		btnModificar = new JButton("Modificar");
-		btnModificar.addActionListener(this);
-		btnModificar.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		btnModificar.setEnabled(true);
-		btnModificar.setBounds(722, 82, 104, 33);
-		getContentPane().add(btnModificar);
-		
-		btnEliminar = new JButton("Eliminar");
-		btnEliminar.addActionListener(this);
-		btnEliminar.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		btnEliminar.setEnabled(true);
-		btnEliminar.setBounds(722, 147, 104, 33);
-		getContentPane().add(btnEliminar);
-		
-		scrollPane = new JScrollPane();
-		scrollPane.setBounds(10, 264, 816, 203);
-		getContentPane().add(scrollPane);
-		
-		tblMatricula = new JTable();
-		tblMatricula.addMouseListener(this);
-		tblMatricula.setFillsViewportHeight(true);
-		scrollPane.setViewportView(tblMatricula);
-		modelo = new DefaultTableModel();
-		modelo.addColumn("NOM");
-		modelo.addColumn("C.A.");
-		modelo.addColumn("NOMBRES");
-		modelo.addColumn("APELLIDOS");
-		modelo.addColumn("C.C.");
-		modelo.addColumn("ASIGNATURA");
-		modelo.addColumn("FECHA");
-		modelo.addColumn("HORA");
-		modelo.addColumn("ACTIVO");
-		tblMatricula.setModel(modelo);
-		
-		ajustarColumnas();
-		listar();
-		deshabilitarTodo();
-	}
-	
-	//DECLARACI�N GLOBAL
-AlumnoDao aa = new AlumnoDao();
-CursoDao ac = new CursoDao();
-MatriculaDao am = new MatriculaDao();
-	
-
-    // ── Colega: comunicación con el Mediador ─────────────────────────
+    private final ConsultasFacade consultas = new ConsultasFacade();
     private Mediador mediador;
+    private List<FichaMatricula> fichas;
 
-    @Override
-    public void setMediador(Mediador mediador) {
-        this.mediador = mediador;
+    private JComboBox<Integer> cboNumMatricula;
+    private ComboBuscador<Alumno> cboAlumno;
+    private ComboBuscador<Curso> cboCurso;
+    private JTextField txtCodAlumno, txtEstadoAlumno, txtCodCurso, txtCiclo;
+    private JButton btnAceptar, btnCancelar, btnAdicionar, btnModificar, btnEliminar;
+    private JTable tblMatricula;
+    private DefaultTableModel modelo;
+
+    public DlgRegMatricula() {
+        setModal(true);
+        JPanel cuerpo = new JPanel(null);
+        cuerpo.setPreferredSize(new Dimension(960, 580));
+
+        // ---- Tarjeta de datos ------------------------------------------
+        Tema.Tarjeta datos = new Tema.Tarjeta("Datos de la matr\u00edcula");
+        datos.setBounds(20, 20, 700, 276);
+        cuerpo.add(datos);
+
+        JLabel pista = Tema.etiqueta("Escribe parte del nombre para buscar");
+        pista.setBounds(440, 14, 240, 18);
+        datos.add(pista);
+
+        colocar(datos, Tema.etiqueta("N.\u00ba de matr\u00edcula"), 24, 46, 190, 16);
+        cboNumMatricula = new JComboBox<Integer>();
+        cboNumMatricula.addItemListener(e -> {
+            if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) cargarDesdeNumero();
+        });
+        colocar(datos, cboNumMatricula, 24, 64, 190, 30);
+
+        colocar(datos, Tema.etiqueta("Alumno"), 24, 106, 200, 16);
+        cboAlumno = new ComboBuscador<Alumno>(a -> a.getNombres() + " " + a.getApellidos() + "  \u00b7  " + a.getCodAlumno());
+        cboAlumno.setAlSeleccionar(this::mostrarAlumno);
+        colocar(datos, cboAlumno, 24, 124, 420, 30);
+        colocar(datos, Tema.etiqueta("C\u00f3digo"), 460, 106, 100, 16);
+        txtCodAlumno = Tema.campoLectura();
+        colocar(datos, txtCodAlumno, 460, 124, 100, 30);
+        colocar(datos, Tema.etiqueta("Estado"), 576, 106, 100, 16);
+        txtEstadoAlumno = Tema.campoLectura();
+        colocar(datos, txtEstadoAlumno, 576, 124, 100, 30);
+
+        colocar(datos, Tema.etiqueta("Curso"), 24, 166, 200, 16);
+        cboCurso = new ComboBuscador<Curso>(c -> c.getAsignatura() + "  \u00b7  " + c.getCodCurso());
+        cboCurso.setAlSeleccionar(this::mostrarCurso);
+        colocar(datos, cboCurso, 24, 184, 420, 30);
+        colocar(datos, Tema.etiqueta("C\u00f3digo"), 460, 166, 100, 16);
+        txtCodCurso = Tema.campoLectura();
+        colocar(datos, txtCodCurso, 460, 184, 100, 30);
+        colocar(datos, Tema.etiqueta("Ciclo"), 576, 166, 100, 16);
+        txtCiclo = Tema.campoLectura();
+        colocar(datos, txtCiclo, 576, 184, 100, 30);
+
+        btnAceptar = boton("Aceptar", this);
+        colocar(datos, btnAceptar, 24, 228, 140, 34);
+        btnCancelar = boton("Cancelar", this);
+        colocar(datos, btnCancelar, 176, 228, 140, 34);
+
+        // ---- Tarjeta de acciones ---------------------------------------
+        Tema.Tarjeta acciones = new Tema.Tarjeta("Acciones");
+        acciones.setBounds(740, 20, 200, 276);
+        cuerpo.add(acciones);
+        btnAdicionar = boton("Adicionar", this);
+        colocar(acciones, btnAdicionar, 20, 54, 160, 42);
+        btnModificar = boton("Modificar", this);
+        colocar(acciones, btnModificar, 20, 110, 160, 42);
+        btnEliminar = boton("Eliminar", this);
+        colocar(acciones, btnEliminar, 20, 166, 160, 42);
+
+        // ---- Tabla ------------------------------------------------------
+        Tema.Tarjeta listado = new Tema.Tarjeta("Matr\u00edculas registradas");
+        listado.setBounds(20, 312, 920, 248);
+        cuerpo.add(listado);
+        modelo = new DefaultTableModel(new Object[] {"N.\u00ba", "C\u00f3d. alumno", "Nombres", "Apellidos",
+                "C\u00f3d. curso", "Asignatura", "Fecha", "Hora", "Activo"}, 0) {
+            @Override public boolean isCellEditable(int f, int c) { return false; }
+        };
+        tblMatricula = new JTable(modelo);
+        tblMatricula.addMouseListener(this);
+        JScrollPane sp = new JScrollPane(tblMatricula);
+        sp.setBounds(12, 40, 896, 196);
+        listado.add(sp);
+
+        Tema.montar(this, "Registro de matr\u00edculas", "Inscribe alumnos en los cursos del ciclo", cuerpo);
+        listar();
+        deshabilitarTodo();
     }
 
-    @Override
-    public void recibir(Evento evento, Object datos) {
+    // ---- Utilidades de construccion --------------------------------------
+    private static void colocar(JPanel p, JComponent c, int x, int y, int w, int h) {
+        c.setBounds(x, y, w, h);
+        p.add(c);
+    }
+
+    private static JButton boton(String texto, ActionListener oyente) {
+        JButton b = new JButton(texto);
+        b.addActionListener(oyente);
+        return b;
+    }
+
+    // ---- Colega: comunicacion con el Mediador ----------------------------
+    @Override public void setMediador(Mediador mediador) { this.mediador = mediador; }
+
+    @Override public void recibir(Evento evento, Object datos) {
         switch (evento) {
-            case DATOS_ACTUALIZADOS:                       // alguien cambió la BD: refresca la tabla
+            case DATOS_ACTUALIZADOS:
                 listar();
                 break;
-            case OPERACION_EXITOSA:                        // mi solicitud terminó bien
-                JOptionPane.showMessageDialog(this, (String) datos);
+            case OPERACION_EXITOSA:
+                JOptionPane.showMessageDialog(this, (String) datos, "Listo", JOptionPane.INFORMATION_MESSAGE);
                 deshabilitarTodo();
                 break;
-            case OPERACION_RECHAZADA:                      // una regla de negocio la rechazó
+            case OPERACION_RECHAZADA:
             case ERROR_TECNICO:
-                JOptionPane.showMessageDialog(this, (String) datos, "", JOptionPane.ERROR_MESSAGE);
-                cboCodigoAlumno.requestFocus();
+                JOptionPane.showMessageDialog(this, (String) datos, "No se pudo completar", JOptionPane.WARNING_MESSAGE);
+                cboAlumno.requestFocus();
                 break;
             default:
                 break;
         }
     }
 
-	public void itemStateChanged(ItemEvent e) {
-		if (e.getSource() == cboCodigoCurso) {
-			itemStateChangedCboCodigoCurso(e);
-		}
-		if (e.getSource() == cboCodigoAlumno) {
-			itemStateChangedCboCodigoAlumno(e);
-		}
-		if (e.getSource() == cboNumMatricula) {
-			itemStateChangedCboNumMatricula(e);
-		}
-	}
-	protected void itemStateChangedCboNumMatricula(ItemEvent e) {
-		try {
-			int numMatricula = leerNumeroMatricula();
-			Matricula buscado = am.buscar(numMatricula);
-			cboCodigoAlumno.setSelectedItem(buscado.getCodigoAlumno());
-			cboCodigoCurso.setSelectedItem(buscado.getCodigoCurso());
-			tblMatricula.setRowSelectionInterval(cboNumMatricula.getSelectedIndex(), cboNumMatricula.getSelectedIndex());
-		} catch (Exception error) {
-			
-		}
-	}
-	protected void itemStateChangedCboCodigoAlumno(ItemEvent e) {
-		try {
-			int codAlumno = leerCodigoAlumno();
-			Alumno buscado = aa.buscar(codAlumno);
-			txtAlumno.setText(buscado.getNombres() + " " + buscado.getApellidos());
-			txtEstadoAlumno.setText(nombreEstado(buscado.getEstado()));
-		} catch (Exception error) {
-			
-		}
-	}
-	protected void itemStateChangedCboCodigoCurso(ItemEvent e) {
-		try {
-			int codCurso = leerCodigoCurso();
-			Curso buscado = ac.buscar(codCurso);
-			txtCurso.setText(buscado.getAsignatura());
-		} catch (Exception error) {
-			
-		}
-	}
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == btnEliminar) {
-			actionPerformedBtnEliminar(e);
-		}
-		if (e.getSource() == btnModificar) {
-			actionPerformedBtnModificar(e);
-		}
-		if (e.getSource() == btnAdicionar) {
-			actionPerformedBtnAdicionar(e);
-		}
-		if (e.getSource() == btnCancelar) {
-			actionPerformedBtnCancelar(e);
-		}
-		if (e.getSource() == btnAceptar) {
-			actionPerformedBtnAceptar(e);
-		}
-	}
-protected void actionPerformedBtnAceptar(ActionEvent e) {
-    int codAlumno, codCurso;
-    try {
-        codAlumno = leerCodigoAlumno();
-        codCurso  = leerCodigoCurso();
-    } catch (RuntimeException ex) {
-        error("Complete todos los campos antes de guardar", cboCodigoAlumno);
-        return;
+    // ---- Seleccion -------------------------------------------------------
+    private void mostrarAlumno(Alumno a) {
+        txtCodAlumno.setText(a == null ? "" : String.valueOf(a.getCodAlumno()));
+        txtEstadoAlumno.setText(a == null ? "" : Texto.titulo(EstadoAlumno.desde(a.getEstado()).name()));
     }
-    if (!btnAdicionar.isEnabled()) {
-        // 0 = placeholder: MySQL asigna el número real
-        Matricula nueva = new Matricula(0, codAlumno, codCurso,
-                                        Calendario.fechaActual(), Calendario.horaActual());
-        mediador.notificar(this, Evento.MATRICULA_ADICIONAR, nueva);
-    } else if (!btnModificar.isEnabled()) {
-        int numMatricula;
+
+    private void mostrarCurso(Curso c) {
+        txtCodCurso.setText(c == null ? "" : String.valueOf(c.getCodCurso()));
+        txtCiclo.setText(c == null ? "" : Ciclo.nombre(c.getCiclo()));
+    }
+
+    private void cargarDesdeNumero() {
+        Object item = cboNumMatricula.getSelectedItem();
+        if (item == null || fichas == null) return;
+        final int num = (Integer) item;
+        for (final FichaMatricula f : fichas) {
+            if (f.getMatricula().getNumeroMatricula() == num) {
+                cboAlumno.seleccionarSi(a -> a.getCodAlumno() == f.getAlumno().getCodAlumno());
+                cboCurso.seleccionarSi(c -> c.getCodCurso() == f.getCurso().getCodCurso());
+                return;
+            }
+        }
+    }
+
+    // ---- Botones ---------------------------------------------------------
+    @Override public void actionPerformed(ActionEvent e) {
+        Object o = e.getSource();
+        if (o == btnAceptar)        aceptar();
+        else if (o == btnCancelar)  deshabilitarTodo();
+        else if (o == btnAdicionar) adicionar();
+        else if (o == btnModificar) modificar();
+        else if (o == btnEliminar)  eliminar();
+    }
+
+    private void adicionar() {
+        limpiar();
+        habilitar(false, true, true, true, true, false, true, false);
+        cboAlumno.requestFocus();
+    }
+
+    private void modificar() {
+        if (!btnAdicionar.isEnabled()) deshabilitarTodo();
+        habilitar(true, false, true, true, true, true, false, false);
+        cboNumMatricula.requestFocus();
+    }
+
+    private void aceptar() {
+        Alumno a = cboAlumno.getSeleccionado();
+        Curso c = cboCurso.getSeleccionado();
+        if (!btnAdicionar.isEnabled()) {
+            if (a == null) { error("Seleccione un alumno de la lista", cboAlumno); return; }
+            if (c == null) { error("Seleccione un curso de la lista", cboCurso); return; }
+            // 0 = marcador: MySQL asigna el numero real
+            mediador.notificar(this, Evento.MATRICULA_ADICIONAR,
+                new Matricula(0, a.getCodAlumno(), c.getCodCurso(), Calendario.fechaActual(), Calendario.horaActual()));
+        } else if (!btnModificar.isEnabled()) {
+            Object num = cboNumMatricula.getSelectedItem();
+            if (num == null) { error("Seleccione un n\u00famero de matr\u00edcula", cboNumMatricula); return; }
+            if (a == null || c == null) { error("Seleccione un curso de la lista", cboCurso); return; }
+            mediador.notificar(this, Evento.MATRICULA_MODIFICAR,
+                new Matricula((Integer) num, a.getCodAlumno(), c.getCodCurso(), null, null));
+        }
+    }
+
+    private void eliminar() {
+        Object num = cboNumMatricula.getSelectedItem();
+        if (num == null) { error("Seleccione una matr\u00edcula en la tabla", cboNumMatricula); return; }
+        Alumno a = cboAlumno.getSeleccionado();
+        Curso c = cboCurso.getSeleccionado();
+        int r = JOptionPane.showConfirmDialog(this,
+            "\u00bfEst\u00e1 seguro de eliminar esta matr\u00edcula?\nAlumno: " + (a == null ? "-" : a.getNombres() + " " + a.getApellidos())
+                + "\nCurso: " + (c == null ? "-" : c.getAsignatura()),
+            "Confirmar", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (r == JOptionPane.YES_OPTION) mediador.notificar(this, Evento.MATRICULA_ELIMINAR, (Integer) num);
+    }
+
+    // ---- Estado de la pantalla -------------------------------------------
+    private void habilitar(boolean num, boolean alumno, boolean curso, boolean aceptar, boolean cancelar,
+                           boolean adicionar, boolean modificar, boolean eliminar) {
+        cboNumMatricula.setEnabled(num);
+        cboAlumno.setEnabled(alumno);
+        cboCurso.setEnabled(curso);
+        btnAceptar.setEnabled(aceptar);
+        btnCancelar.setEnabled(cancelar);
+        btnAdicionar.setEnabled(adicionar);
+        btnModificar.setEnabled(modificar);
+        btnEliminar.setEnabled(eliminar);
+    }
+
+    private void deshabilitarTodo() {
+        cargarListas();
+        habilitar(false, false, false, false, false, true, true, true);
+        limpiar();
+    }
+
+    private void limpiar() {
+        cboNumMatricula.setSelectedIndex(-1);
+        cboAlumno.limpiar();
+        cboCurso.limpiar();
+        mostrarAlumno(null);
+        mostrarCurso(null);
+    }
+
+    private void cargarListas() {
         try {
-            numMatricula = leerNumeroMatricula();
-        } catch (RuntimeException ex) {
-            error("Seleccione un número de matrícula", cboNumMatricula);
-            return;
+            cboNumMatricula.removeAllItems();
+            fichas = consultas.fichasMatriculas();
+            for (FichaMatricula f : fichas) cboNumMatricula.addItem(f.getMatricula().getNumeroMatricula());
+            List<Alumno> alumnos = consultas.alumnos();
+            alumnos.sort(Comparator.comparing(a -> Texto.clave(a.getNombres() + " " + a.getApellidos())));
+            cboAlumno.setItems(alumnos);
+            List<Curso> cursos = consultas.cursos();
+            cursos.sort(Comparator.comparing(c -> Texto.clave(c.getAsignatura())));
+            cboCurso.setItems(cursos);
+        } catch (Exception ex) {
+            mensaje("No se pudieron cargar los datos");
         }
-        mediador.notificar(this, Evento.MATRICULA_MODIFICAR,
-                           new Matricula(numMatricula, codAlumno, codCurso, null, null));
+        cboNumMatricula.setSelectedIndex(-1);
     }
-}
-	protected void actionPerformedBtnCancelar(ActionEvent e) {
-		deshabilitarTodo();
-	}
-protected void actionPerformedBtnAdicionar(ActionEvent e) {
-    limpiar();
-    habilitar(false, true, false, false, true, false, true, true, false, true, false);
-    // El combo de matrícula queda vacío — MySQL asignará el número al guardar
-    cboNumMatricula.removeAllItems();
-    cboCodigoAlumno.requestFocus();
-}
-	protected void actionPerformedBtnModificar(ActionEvent e) {
-		if (!btnAdicionar.isEnabled()) deshabilitarTodo();
-		habilitar(true, false, false, false, true, false, true, true, true, false, false);
-		cboNumMatricula.requestFocus();
-	}
-protected void actionPerformedBtnEliminar(ActionEvent e) {
-    int numMatricula;
-    try {
-        numMatricula = leerNumeroMatricula();
-    } catch (RuntimeException ex) {
-        error("Seleccione un número de matrícula", cboNumMatricula);
-        return;
-    }
-    if (confirmar() == 0) {
-        mediador.notificar(this, Evento.MATRICULA_ELIMINAR, numMatricula);
-    }
-}
-	void habilitar(boolean numMatricula, boolean codigoAlumno, boolean alumno, boolean estadoAlumno, boolean codigoCurso,
-			boolean curso, boolean aceptar, boolean cancelar, boolean adicionar, boolean modificar, boolean eliminar) {
-		cboNumMatricula.setEnabled(numMatricula);
-		cboCodigoAlumno.setEnabled(codigoAlumno);
-		txtAlumno.setEditable(alumno);
-		txtEstadoAlumno.setEditable(estadoAlumno);
-		cboCodigoCurso.setEnabled(codigoCurso);
-		txtCurso.setEditable(curso);
-		btnAceptar.setEnabled(aceptar);
-		btnCancelar.setEnabled(cancelar);
-		btnAdicionar.setEnabled(adicionar);
-		btnModificar.setEnabled(modificar);
-		btnEliminar.setEnabled(eliminar);
-	}
-	void deshabilitarTodo() {
-		listarCboNumMatricula();
-		listarCboCodAlumno();
-		listarCboCodCurso();
-		habilitar(false, false, false, false, false, false, false, false, true, true, true);
-		limpiar();
-	}
-	void limpiar() {
-		cboNumMatricula.setSelectedIndex(-1);
-		cboCodigoAlumno.setSelectedIndex(-1);
-		txtAlumno.setText("");
-		txtEstadoAlumno.setText("");
-		cboCodigoCurso.setSelectedIndex(-1);
-		txtCurso.setText("");
-	}
-void listarCboNumMatricula() {
-    cboNumMatricula.removeAllItems();
-    try {
-        for (Matricula m : am.listar()) {
-            cboNumMatricula.addItem(m.getNumeroMatricula());
-        }
-    } catch (Exception ex) { mensaje("Error cargando matrículas"); }
-    cboNumMatricula.setSelectedIndex(-1);
-}
-void listarCboCodAlumno() {
-    cboCodigoAlumno.removeAllItems();
-    try {
-        for (Alumno a : aa.listar()) {
-            cboCodigoAlumno.addItem(a.getCodAlumno());
-        }
-    } catch (Exception ex) { mensaje("Error cargando alumnos"); }
-    cboCodigoAlumno.setSelectedIndex(-1);
-}
-void listarCboCodCurso() {
-    cboCodigoCurso.removeAllItems();
-    try {
-        for (Curso c : ac.listar()) {
-            cboCodigoCurso.addItem(c.getCodCurso());
-        }
-    } catch (Exception ex) { mensaje("Error cargando cursos"); }
-    cboCodigoCurso.setSelectedIndex(-1);
-}
-	void ajustarColumnas() {
-		TableColumnModel modeloColuma = tblMatricula.getColumnModel();
-		modeloColuma.getColumn(0).setPreferredWidth(scrollPane.getWidth()*2);
-		modeloColuma.getColumn(1).setPreferredWidth(scrollPane.getWidth()*2);
-		modeloColuma.getColumn(2).setPreferredWidth(scrollPane.getWidth()*5);
-		modeloColuma.getColumn(3).setPreferredWidth(scrollPane.getWidth()*5);
-		modeloColuma.getColumn(4).setPreferredWidth(scrollPane.getWidth()*1);
-		modeloColuma.getColumn(5).setPreferredWidth(scrollPane.getWidth()*7);
-		modeloColuma.getColumn(6).setPreferredWidth(scrollPane.getWidth()*2);
-		modeloColuma.getColumn(7).setPreferredWidth(scrollPane.getWidth()*2);
-		modeloColuma.getColumn(8).setPreferredWidth(scrollPane.getWidth()*1);
-	}
-void listar() {
-    modelo.setRowCount(0);
-    try {
-        for (Matricula m : am.listar()) {
-            Alumno a = aa.buscar(m.getCodigoAlumno());
-            Curso c = ac.buscar(m.getCodigoCurso());
-            Object[] fila = {
-                m.getNumeroMatricula(),
-                m.getCodigoAlumno(),
-                a.getNombres(),
-                a.getApellidos(),
-                m.getCodigoCurso(),
-                c.getAsignatura(),
-                m.getFecha(),
-                m.getHora(),
-                activo(a.getEstado())
-            };
-            modelo.addRow(fila);
-        }
-    } catch (Exception ex) {
-        mensaje("Error listando matrículas");
-    }
-}
-	int leerNumeroMatricula() {
-		    Object item = cboNumMatricula.getSelectedItem();
-    if (item == null) throw new RuntimeException("Sin selección");
-    return Integer.parseInt(item.toString());
-	}
-	int leerCodigoAlumno() {
-		return Integer.parseInt(cboCodigoAlumno.getSelectedItem().toString());
-	}
-	String leerAlumno() {
-		return txtAlumno.getText().trim().toUpperCase();
-	}
-	String leerEstadoAlumno() {
-		return txtEstadoAlumno.getText();
-	}
-	String nombreEstado(int i) {
-		switch (i) {
-		case 0: return "REGISTRADO";
-		case 1: return "MATRICULADO";
-		case 2: return "RETIRADO";
-		default:return null;
-		}
-	}
-	String activo(int i) {
-		return i == 1 ? "S�" : "No";
-	}
-	int leerCodigoCurso() {
-		return Integer.parseInt(cboCodigoCurso.getSelectedItem().toString());
-	}
-	String leerCurso() {
-		return txtCurso.getText().trim().toUpperCase();
-	}
-	void mensaje(String s) {
-		JOptionPane.showMessageDialog(this, s);
-	}
-	void error(String s, JComboBox cbo) {
-		JOptionPane.showMessageDialog(this, s,"", JOptionPane.ERROR_MESSAGE);
-		cbo.requestFocus();
-	}
-	int confirmar() {
-		int valor = JOptionPane.showOptionDialog(null,
-				"�Estas seguro que deseas eliminar esta matricula?\n"
-				+ "Alumno: " + leerAlumno() + "\n" + "Curso: " + leerCurso(),
-				"Confirmar",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[] {"S�", "No"}, null);
-		return valor;
-	}
-	public void mouseClicked(MouseEvent e) {
-		if (e.getSource() == tblMatricula) {
-			mouseClickedTblMatricula(e);
-		}
-	}
-	public void mouseEntered(MouseEvent e) {
-	}
-	public void mouseExited(MouseEvent e) {
-	}
-	public void mousePressed(MouseEvent e) {
-	}
-	public void mouseReleased(MouseEvent e) {
-	}
-protected void mouseClickedTblMatricula(MouseEvent e) {
-    if (btnAdicionar.isEnabled()) {
+
+    private void listar() {
+        modelo.setRowCount(0);
         try {
-            int row = tblMatricula.getSelectedRow();
-            if (row >= 0) {
-                int numMatricula = (int) tblMatricula.getValueAt(row, 0);
-                Matricula buscado = am.buscar(numMatricula);
-                cboNumMatricula.setSelectedItem(buscado.getNumeroMatricula());
-                cboCodigoAlumno.setSelectedItem(buscado.getCodigoAlumno());
-                cboCodigoCurso.setSelectedItem(buscado.getCodigoCurso());
+            fichas = consultas.fichasMatriculas();
+            for (FichaMatricula f : fichas) {
+                Matricula m = f.getMatricula();
+                Alumno a = f.getAlumno();
+                modelo.addRow(new Object[] {m.getNumeroMatricula(), a.getCodAlumno(), a.getNombres(), a.getApellidos(),
+                    f.getCurso().getCodCurso(), f.getCurso().getAsignatura(), m.getFecha(), m.getHora(),
+                    a.getEstado() == EstadoAlumno.MATRICULADO.getValor() ? "S\u00ed" : "No"});
             }
         } catch (Exception ex) {
-            mensaje("Error seleccionando matrícula");
+            mensaje("Error listando matr\u00edculas");
         }
     }
-}
+
+    // ---- Mensajes ----------------------------------------------------------
+    private void mensaje(String s) {
+        JOptionPane.showMessageDialog(this, s);
+    }
+
+    private void error(String s, JComponent c) {
+        JOptionPane.showMessageDialog(this, s, "Atenci\u00f3n", JOptionPane.WARNING_MESSAGE);
+        c.requestFocus();
+    }
+
+    // ---- Tabla -----------------------------------------------------------
+    @Override public void mouseClicked(MouseEvent e) {
+        if (e.getSource() == tblMatricula && btnAdicionar.isEnabled()) {
+            int fila = tblMatricula.getSelectedRow();
+            if (fila >= 0) cboNumMatricula.setSelectedItem(tblMatricula.getValueAt(fila, 0));
+        }
+    }
+    @Override public void mouseEntered(MouseEvent e) { }
+    @Override public void mouseExited(MouseEvent e) { }
+    @Override public void mousePressed(MouseEvent e) { }
+    @Override public void mouseReleased(MouseEvent e) { }
 }

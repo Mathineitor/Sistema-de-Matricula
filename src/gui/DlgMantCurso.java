@@ -114,7 +114,7 @@ public class DlgMantCurso extends JDialog implements ActionListener, ItemListene
 		getContentPane().add(txtAsignatura);
 		
 		cboCiclo = new JComboBox<String>();
-		cboCiclo.setModel(new DefaultComboBoxModel<String>(new String[] {"PRIMERO", "SEGUNDO", "TERCERO", "CUARTO", "QUINTO", "SEXTO"}));
+		cboCiclo.setModel(new DefaultComboBoxModel<String>(Ciclo.nombres()));
 		cboCiclo.setBounds(97, 90, 115, 21);
 		getContentPane().add(cboCiclo);
 		
@@ -178,9 +178,10 @@ public class DlgMantCurso extends JDialog implements ActionListener, ItemListene
 		listar();
 		deshabilitarTodo();
 		
+			Tema.aplicar(this, "Mantenimiento de cursos", "Administra los cursos disponibles, del primer al d\u00e9cimo ciclo");
 	}
 	
-	//DECLARACI�N GLOBAL
+	//DECLARACI\ufffdN GLOBAL
 CursoDao ac = new CursoDao();
 	
 	public void actionPerformed(ActionEvent e) {
@@ -201,7 +202,7 @@ CursoDao ac = new CursoDao();
 		}
 	}
 
-    // ── Colega: comunicación con el Mediador ─────────────────────────
+    // \u2500\u2500 Colega: comunicaci\u00f3n con el Mediador \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
     private Mediador mediador;
 
     @Override
@@ -212,14 +213,14 @@ CursoDao ac = new CursoDao();
     @Override
     public void recibir(Evento evento, Object datos) {
         switch (evento) {
-            case DATOS_ACTUALIZADOS:                       // alguien cambió la BD: refresca la tabla
+            case DATOS_ACTUALIZADOS:                       // alguien cambi\u00f3 la BD: refresca la tabla
                 listar();
                 break;
-            case OPERACION_EXITOSA:                        // mi solicitud terminó bien
+            case OPERACION_EXITOSA:                        // mi solicitud termin\u00f3 bien
                 JOptionPane.showMessageDialog(this, (String) datos);
                 deshabilitarTodo();
                 break;
-            case OPERACION_RECHAZADA:                      // una regla de negocio la rechazó
+            case OPERACION_RECHAZADA:                      // una regla de negocio la rechaz\u00f3
             case ERROR_TECNICO:
                 JOptionPane.showMessageDialog(this, (String) datos, "", JOptionPane.ERROR_MESSAGE);
                 cboCodigo.requestFocus();
@@ -265,10 +266,10 @@ protected void actionPerformedBtnAceptar(ActionEvent e) {
                             mediador.notificar(this, Evento.CURSO_MODIFICAR, datos);
                         }
                     } catch (Exception error) {
-                        error("Ingrese un número de horas válido", txtHoras);
+                        error("Ingrese un n\u00famero de horas v\u00e1lido", txtHoras);
                     }
                 } catch (Exception error) {
-                    error("Ingrese una cantidad de créditos válida", txtCreditos);
+                    error("Ingrese una cantidad de cr\u00e9ditos v\u00e1lida", txtCreditos);
                 }
             } else {
                 error("Seleccione el ciclo al que pertenece el curso", cboCiclo);
@@ -277,7 +278,7 @@ protected void actionPerformedBtnAceptar(ActionEvent e) {
             error("Ingrese el nombre de la asignatura", txtAsignatura);
         }
     } catch (Exception error) {
-        error("Seleccione un código de curso", cboCodigo);
+        error("Seleccione un c\u00f3digo de curso", cboCodigo);
     }
 }
 	protected void actionPerformedBtnCancelar(ActionEvent e) {
@@ -292,7 +293,7 @@ protected void actionPerformedBtnAdicionar(ActionEvent e) {
         cboCodigo.addItem(nuevoCodigo);
         cboCodigo.setSelectedIndex(0);
     } catch (Exception ex) {
-        mensaje("Error generando código correlativo");
+        mensaje("Error generando c\u00f3digo correlativo");
     }
     txtAsignatura.requestFocus();
 }
@@ -306,7 +307,7 @@ protected void actionPerformedBtnEliminar(ActionEvent e) {
     try {
         codCurso = leerCodigo();
     } catch (Exception error) {
-        error("Seleccione un código de curso", cboCodigo);
+        error("Seleccione un c\u00f3digo de curso", cboCodigo);
         return;
     }
     if (confirmar() == 0) {
@@ -378,22 +379,12 @@ void listar() {
 		return Integer.parseInt(cboCodigo.getSelectedItem().toString());
 	}
 	String leerAsignatura() {
-		return txtAsignatura.getText().trim().toUpperCase();
+		return txtAsignatura.getText().trim();
 	}
 	int leerCiclo() {
 		return cboCiclo.getSelectedIndex();
 	}
-	String nombreCiclo(int i) {
-		switch (i) {
-			case 0: return "PRIMERO";
-			case 1: return "SEGUNDO";
-			case 2: return "TERCERO";
-			case 3: return "CUARTO";
-			case 4: return "QUINTO";
-			case 5: return "SEXTO";
-			default:return null;
-		}
-	}
+	String nombreCiclo(int i) { return Ciclo.nombre(i); }
 	int leerCreditos() {
 		return Integer.parseInt(txtCreditos.getText().trim());
 	}
@@ -417,12 +408,12 @@ int confirmar() {
         Curso buscado = ac.buscar(leerCodigo());
         int valor = JOptionPane.showOptionDialog(
             null,
-            "¿Estás seguro que deseas eliminar este curso?\n" + buscado.getAsignatura(),
+            "\u00bfEst\u00e1s seguro que deseas eliminar este curso?\n" + buscado.getAsignatura(),
             "Confirmar",
             JOptionPane.YES_NO_OPTION,
             JOptionPane.QUESTION_MESSAGE,
             null,
-            new Object[] {"Sí", "No"},
+            new Object[] {"S\u00ed", "No"},
             null
         );
         return valor;
@@ -449,7 +440,7 @@ protected void mouseClickedTblCurso(MouseEvent e) {
         try {
             int row = tblCurso.getSelectedRow();
             if (row >= 0) {
-                // Obtiene el código desde la tabla
+                // Obtiene el c\u00f3digo desde la tabla
                 int codCurso = (int) tblCurso.getValueAt(row, 0);
 
                 // Busca el curso en BD
